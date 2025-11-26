@@ -197,7 +197,7 @@ export default function Home() {
         {!session && (
           <>
             <LiquidEther />
-            <div className="relative flex min-h-[calc(100vh-10rem)] flex-col items-center justify-center">
+            <div className="relative z-10 flex min-h-[calc(100vh-10rem)] flex-col items-center justify-center">
               <div className="mb-12 text-center">
                 <h1 className="bg-gradient-to-r from-[var(--foreground)] via-[var(--foreground)] to-[var(--foreground-secondary)] bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl">
                   Учись с Ксенией

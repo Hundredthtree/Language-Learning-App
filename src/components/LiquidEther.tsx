@@ -2,11 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-interface LiquidEtherProps {
-  className?: string;
-}
-
-export function LiquidEther({ className = "" }: LiquidEtherProps) {
+export function LiquidEther() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -27,13 +23,14 @@ export function LiquidEther({ className = "" }: LiquidEtherProps) {
     resize();
     window.addEventListener("resize", resize);
 
-    // Color palette - Russian flag inspired with soft pastels
+    // Color palette - Russian flag inspired with brand colors
     const colors = [
-      { r: 255, g: 255, b: 255 }, // White
       { r: 0, g: 87, b: 183 },    // Blue
       { r: 213, g: 43, b: 30 },   // Red
       { r: 236, g: 72, b: 153 },  // Pink (brand)
       { r: 244, g: 63, b: 94 },   // Rose (brand)
+      { r: 56, g: 189, b: 248 },  // Sky blue
+      { r: 167, g: 139, b: 250 }, // Purple
     ];
 
     const blobs: {
@@ -46,58 +43,53 @@ export function LiquidEther({ className = "" }: LiquidEtherProps) {
       phase: number;
     }[] = [];
 
-    // Create blobs
-    for (let i = 0; i < 6; i++) {
+    // Create more blobs with bigger radius
+    for (let i = 0; i < 8; i++) {
       blobs.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        radius: 150 + Math.random() * 200,
+        radius: 200 + Math.random() * 300,
         color: colors[i % colors.length],
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
+        vx: (Math.random() - 0.5) * 0.8,
+        vy: (Math.random() - 0.5) * 0.8,
         phase: Math.random() * Math.PI * 2,
       });
     }
 
     const animate = () => {
-      time += 0.005;
+      time += 0.008;
 
-      // Clear with slight fade for trail effect
-      ctx.fillStyle = "rgba(248, 250, 252, 0.1)";
+      // Clear canvas completely each frame with base color
+      ctx.fillStyle = "#f8fafc";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Update and draw blobs
       blobs.forEach((blob) => {
         // Organic movement
-        blob.x += blob.vx + Math.sin(time + blob.phase) * 0.3;
-        blob.y += blob.vy + Math.cos(time + blob.phase * 1.3) * 0.3;
+        blob.x += blob.vx + Math.sin(time + blob.phase) * 0.5;
+        blob.y += blob.vy + Math.cos(time + blob.phase * 1.3) * 0.5;
 
-        // Bounce off edges
+        // Wrap around edges
         if (blob.x < -blob.radius) blob.x = canvas.width + blob.radius;
         if (blob.x > canvas.width + blob.radius) blob.x = -blob.radius;
         if (blob.y < -blob.radius) blob.y = canvas.height + blob.radius;
         if (blob.y > canvas.height + blob.radius) blob.y = -blob.radius;
 
-        // Draw blob with gradient
+        // Draw blob with gradient - increased opacity
+        const pulsingRadius = blob.radius * (1 + Math.sin(time * 2 + blob.phase) * 0.15);
+        
         const gradient = ctx.createRadialGradient(
           blob.x,
           blob.y,
           0,
           blob.x,
           blob.y,
-          blob.radius
+          pulsingRadius
         );
 
-        const pulsingRadius = blob.radius * (1 + Math.sin(time * 2 + blob.phase) * 0.1);
-
-        gradient.addColorStop(
-          0,
-          `rgba(${blob.color.r}, ${blob.color.g}, ${blob.color.b}, 0.4)`
-        );
-        gradient.addColorStop(
-          0.5,
-          `rgba(${blob.color.r}, ${blob.color.g}, ${blob.color.b}, 0.15)`
-        );
+        gradient.addColorStop(0, `rgba(${blob.color.r}, ${blob.color.g}, ${blob.color.b}, 0.6)`);
+        gradient.addColorStop(0.4, `rgba(${blob.color.r}, ${blob.color.g}, ${blob.color.b}, 0.3)`);
+        gradient.addColorStop(0.7, `rgba(${blob.color.r}, ${blob.color.g}, ${blob.color.b}, 0.1)`);
         gradient.addColorStop(1, `rgba(${blob.color.r}, ${blob.color.g}, ${blob.color.b}, 0)`);
 
         ctx.beginPath();
@@ -120,9 +112,8 @@ export function LiquidEther({ className = "" }: LiquidEtherProps) {
   return (
     <canvas
       ref={canvasRef}
-      className={`fixed inset-0 -z-10 ${className}`}
-      style={{ background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)" }}
+      className="fixed inset-0 pointer-events-none"
+      style={{ zIndex: 0 }}
     />
   );
 }
-
