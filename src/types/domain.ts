@@ -5,6 +5,7 @@ export type Profile = {
   email?: string | null;
   display_name?: string | null;
   role: Role;
+  avatar_url?: string | null;
 };
 
 export type Lesson = {
