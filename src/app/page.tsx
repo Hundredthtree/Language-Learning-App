@@ -309,9 +309,9 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
 
   return (
     <div className="mx-auto w-full max-w-sm">
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--card-bg)] p-6">
+      <div className="rounded-2xl border border-white/20 bg-white/70 p-6 shadow-xl shadow-black/5 backdrop-blur-xl">
         {/* Auth mode tabs with sliding background */}
-        <div className="relative mb-6 flex rounded-lg bg-[var(--background-tertiary)] p-1">
+        <div className="relative mb-6 flex rounded-lg bg-black/5 p-1">
           {/* Sliding background indicator */}
           <div
             className="absolute left-1 top-1 bottom-1 w-[calc(50%-4px)] rounded-md bg-gradient-to-r from-rose-500 to-pink-600 shadow-lg shadow-rose-500/25"
@@ -342,21 +342,21 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
 
         <div className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-[var(--foreground-secondary)]">Email</label>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Email</label>
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-rose-500"
+              className="w-full rounded-lg border border-white/30 bg-white/50 px-3 py-2.5 text-gray-900 placeholder-gray-500 outline-none backdrop-blur-sm focus:border-rose-500 focus:bg-white/70"
               type="email"
               placeholder="you@example.com"
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-[var(--foreground-secondary)]">Password</label>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Password</label>
             <input
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-rose-500"
+              className="w-full rounded-lg border border-white/30 bg-white/50 px-3 py-2.5 text-gray-900 placeholder-gray-500 outline-none backdrop-blur-sm focus:border-rose-500 focus:bg-white/70"
               type="password"
               placeholder="••••••••"
             />
@@ -364,28 +364,28 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
           {mode === "sign-up" && (
             <>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[var(--foreground-secondary)]">Your name</label>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700">Your name</label>
                 <input
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-rose-500"
+                  className="w-full rounded-lg border border-white/30 bg-white/50 px-3 py-2.5 text-gray-900 placeholder-gray-500 outline-none backdrop-blur-sm focus:border-rose-500 focus:bg-white/70"
                   placeholder="Alex"
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[var(--foreground-secondary)]">I am a...</label>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700">I am a...</label>
                 <div className="grid grid-cols-2 gap-2">
                   {(["teacher", "student"] as Role[]).map((v) => (
                     <button
                       key={v}
                       onClick={() => setRole(v)}
                       type="button"
-                      className={`rounded-lg border px-3 py-2.5 text-sm font-medium transition ${
+                      className={`rounded-lg border px-3 py-2.5 text-sm font-medium transition backdrop-blur-sm ${
                         role === v
                           ? v === "teacher"
-                            ? "border-rose-500 bg-rose-500/10 text-rose-500"
-                            : "border-emerald-500 bg-emerald-500/10 text-emerald-500"
-                          : "border-[var(--border)] text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"
+                            ? "border-rose-500 bg-rose-500/20 text-rose-600"
+                            : "border-emerald-500 bg-emerald-500/20 text-emerald-600"
+                          : "border-white/30 bg-white/30 text-gray-600 hover:bg-white/50 hover:text-gray-900"
                       }`}
                     >
                       {v === "teacher" ? "👨‍🏫 Teacher" : "📚 Student"}
