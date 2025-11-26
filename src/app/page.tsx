@@ -618,7 +618,22 @@ function AvatarWidget({ profile, onToast, onUpdateProfile }: AvatarWidgetProps) 
 // TEACHER DASHBOARD
 // ============================================
 
-type TeacherView = "students" | "lessons" | "lesson-detail";
+type TeacherView = "students" | "lessons" | "lesson-detail" | "student-words";
+
+type StudentWordWithStats = {
+  id: string;
+  term: string;
+  translation: string | null;
+  note: string | null;
+  lesson_title: string | null;
+  lesson_date: string;
+  ease: number;
+  interval_days: number;
+  repetitions: number;
+  total_success: number;
+  total_fail: number;
+  due_at: string;
+};
 
 type TeacherDashboardProps = {
   profile: Profile;
@@ -633,6 +648,9 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
   const [lessons, setLessons] = useState<(Lesson & { word_count?: number })[]>([]);
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
   const [lessonWords, setLessonWords] = useState<LessonWord[]>([]);
+  const [studentWords, setStudentWords] = useState<StudentWordWithStats[]>([]);
+  const [selectedWordDetail, setSelectedWordDetail] = useState<StudentWordWithStats | null>(null);
+  const [wordSearchQuery, setWordSearchQuery] = useState("");
   const [linkEmail, setLinkEmail] = useState("");
   const [lessonTitle, setLessonTitle] = useState("");
   const [wordForm, setWordForm] = useState({ term: "", translation: "", note: "" });
@@ -690,6 +708,61 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
       setLessonWords((data ?? []) as LessonWord[]);
     }
   }, [onToast, selectedLesson]);
+
+  // Load all words for a student with their review stats
+  const loadStudentWords = useCallback(async () => {
+    if (!supabase || !selectedStudent) return;
+    const { data, error } = await supabase
+      .from("review_cards")
+      .select(`
+        id, ease, interval_days, repetitions, due_at, total_success, total_fail,
+        lesson_word:lesson_word_id(
+          id, term, translation, note,
+          lesson:lesson_id(id, title, started_at, teacher_id)
+        )
+      `)
+      .eq("student_id", selectedStudent.id)
+      .order("due_at", { ascending: true });
+
+    if (error) {
+      onToast(`Could not load student words: ${error.message}`);
+    } else {
+      type CardRow = {
+        id: string;
+        ease: number;
+        interval_days: number;
+        repetitions: number;
+        due_at: string;
+        total_success: number;
+        total_fail: number;
+        lesson_word: {
+          id: string;
+          term: string;
+          translation: string | null;
+          note: string | null;
+          lesson: { id: string; title: string | null; started_at: string; teacher_id: string } | null;
+        } | null;
+      };
+      // Filter to only show words from this teacher's lessons
+      const mapped: StudentWordWithStats[] = ((data as CardRow[]) ?? [])
+        .filter(r => r.lesson_word && r.lesson_word.lesson?.teacher_id === profile.id)
+        .map(r => ({
+          id: r.lesson_word!.id,
+          term: r.lesson_word!.term,
+          translation: r.lesson_word!.translation,
+          note: r.lesson_word!.note,
+          lesson_title: r.lesson_word!.lesson?.title || null,
+          lesson_date: r.lesson_word!.lesson?.started_at || "",
+          ease: r.ease,
+          interval_days: r.interval_days,
+          repetitions: r.repetitions,
+          total_success: r.total_success,
+          total_fail: r.total_fail,
+          due_at: r.due_at,
+        }));
+      setStudentWords(mapped);
+    }
+  }, [onToast, selectedStudent, profile.id]);
 
   useEffect(() => {
     loadStudents();
@@ -778,6 +851,29 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
     setView("lesson-detail");
   };
 
+  // View all words for a student
+  const handleViewStudentWords = async () => {
+    await loadStudentWords();
+    setView("student-words");
+  };
+
+  // Filter words by search query
+  const filteredStudentWords = studentWords.filter(word => 
+    word.term.toLowerCase().includes(wordSearchQuery.toLowerCase()) ||
+    (word.translation?.toLowerCase().includes(wordSearchQuery.toLowerCase())) ||
+    (word.lesson_title?.toLowerCase().includes(wordSearchQuery.toLowerCase()))
+  );
+
+  // Get mastery level for teacher view
+  const getStudentMasteryLevel = (word: StudentWordWithStats) => {
+    const total = word.total_success + word.total_fail;
+    if (total === 0) return { level: "New", color: "text-slate-400", bg: "bg-slate-500/10" };
+    const ratio = word.total_success / total;
+    if (word.interval_days >= 21 && ratio >= 0.8) return { level: "Mastered", color: "text-emerald-400", bg: "bg-emerald-500/10" };
+    if (word.interval_days >= 7 && ratio >= 0.6) return { level: "Learning", color: "text-amber-400", bg: "bg-amber-500/10" };
+    return { level: "Struggling", color: "text-red-400", bg: "bg-red-500/10" };
+  };
+
   // Add word
   const handleAddWord = async () => {
     if (!supabase || !selectedLesson || !selectedStudent) return;
@@ -823,7 +919,7 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
   const Breadcrumb = () => (
     <div className="mb-6 flex items-center gap-2 text-sm">
       <button
-        onClick={() => { setView("students"); setSelectedStudent(null); setSelectedLesson(null); }}
+        onClick={() => { setView("students"); setSelectedStudent(null); setSelectedLesson(null); setWordSearchQuery(""); }}
         className={`transition ${view === "students" ? "text-[var(--foreground)] font-medium" : "text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"}`}
       >
         Students
@@ -832,17 +928,23 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
         <>
           <span className="text-[var(--foreground-muted)]">/</span>
           <button
-            onClick={() => { setView("lessons"); setSelectedLesson(null); }}
-            className={`transition ${view === "lessons" ? "text-[var(--foreground)] font-medium" : "text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"}`}
+            onClick={() => { setView("lessons"); setSelectedLesson(null); setWordSearchQuery(""); }}
+            className={`transition ${view === "lessons" || view === "student-words" ? "text-[var(--foreground)] font-medium" : "text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"}`}
           >
             {selectedStudent.display_name || selectedStudent.email}
           </button>
         </>
       )}
-      {selectedLesson && (
+      {selectedLesson && view === "lesson-detail" && (
         <>
           <span className="text-[var(--foreground-muted)]">/</span>
           <span className="text-[var(--foreground)] font-medium">{selectedLesson.title || "Lesson"}</span>
+        </>
+      )}
+      {view === "student-words" && (
+        <>
+          <span className="text-[var(--foreground-muted)]">/</span>
+          <span className="text-[var(--foreground)] font-medium">Progress</span>
         </>
       )}
     </div>
@@ -925,51 +1027,91 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
             </div>
           </div>
 
-          {/* New Lesson */}
-          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-5">
-            <h2 className="mb-3 text-sm font-semibold text-[var(--foreground)]">Start New Lesson</h2>
-            <div className="flex gap-2">
-              <input
-                value={lessonTitle}
-                onChange={(e) => setLessonTitle(e.target.value)}
-                placeholder="Lesson title (optional)"
-                className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
-                onKeyDown={(e) => e.key === "Enter" && handleCreateLesson()}
-              />
-              <button
-                onClick={handleCreateLesson}
-                disabled={busy}
-                className="rounded-lg bg-gradient-to-r from-violet-500 to-fuchsia-500 px-4 py-2.5 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
-              >
-                Start Lesson
-              </button>
+          {/* Action Cards */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            {/* New Lesson Card */}
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/20">
+                  <svg className="h-5 w-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="font-semibold text-[var(--foreground)]">New Lesson</h2>
+                  <p className="text-xs text-[var(--foreground-secondary)]">Start teaching</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <input
+                  value={lessonTitle}
+                  onChange={(e) => setLessonTitle(e.target.value)}
+                  placeholder="Lesson title (optional)"
+                  className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
+                  onKeyDown={(e) => e.key === "Enter" && handleCreateLesson()}
+                />
+                <button
+                  onClick={handleCreateLesson}
+                  disabled={busy}
+                  className="rounded-lg bg-violet-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-violet-600 disabled:opacity-50"
+                >
+                  Start
+                </button>
+              </div>
             </div>
+
+            {/* View All Words Card */}
+            <button
+              onClick={handleViewStudentWords}
+              className="rounded-xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 p-5 text-left transition hover:border-emerald-500/50"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/20">
+                  <svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="font-semibold text-[var(--foreground)]">Progress</h2>
+                  <p className="text-xs text-[var(--foreground-secondary)]">View all words & stats</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-sm font-medium text-emerald-400">
+                  {lessons.reduce((acc, l) => acc + (l.word_count ?? 0), 0)} words
+                </span>
+                <span className="text-emerald-400">→</span>
+              </div>
+            </button>
           </div>
 
           {/* Lessons List */}
-          {lessons.length > 0 ? (
-            <div className="space-y-2">
-              {lessons.map((lesson) => (
-                <button
-                  key={lesson.id}
-                  onClick={() => handleSelectLesson(lesson)}
-                  className="w-full flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 text-left transition hover:border-violet-500/50 hover:bg-violet-500/5"
-                >
-                  <div>
-                    <p className="font-medium text-[var(--foreground)]">{lesson.title || "Untitled Lesson"}</p>
-                    <p className="text-xs text-[var(--foreground-muted)]">
-                      {new Date(lesson.started_at).toLocaleDateString()} • {lesson.word_count ?? 0} words
-                    </p>
-                  </div>
-                  <span className="text-[var(--foreground-muted)]">→</span>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-[var(--border)] text-[var(--foreground-muted)]">
-              No lessons yet. Start one above!
-            </div>
-          )}
+          <div>
+            <h2 className="mb-3 text-sm font-semibold text-[var(--foreground)]">Lessons</h2>
+            {lessons.length > 0 ? (
+              <div className="space-y-2">
+                {lessons.map((lesson) => (
+                  <button
+                    key={lesson.id}
+                    onClick={() => handleSelectLesson(lesson)}
+                    className="w-full flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 text-left transition hover:border-violet-500/50 hover:bg-violet-500/5"
+                  >
+                    <div>
+                      <p className="font-medium text-[var(--foreground)]">{lesson.title || "Untitled Lesson"}</p>
+                      <p className="text-xs text-[var(--foreground-muted)]">
+                        {new Date(lesson.started_at).toLocaleDateString()} • {lesson.word_count ?? 0} words
+                      </p>
+                    </div>
+                    <span className="text-[var(--foreground-muted)]">→</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-[var(--border)] text-[var(--foreground-muted)]">
+                No lessons yet. Start one above!
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -1045,6 +1187,195 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
             )}
           </div>
         </div>
+      )}
+
+      {/* STUDENT WORDS VIEW */}
+      {view === "student-words" && selectedStudent && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setView("lessons")}
+              className="flex items-center gap-2 text-sm text-[var(--foreground-secondary)] transition hover:text-[var(--foreground)]"
+            >
+              ← Back to lessons
+            </button>
+            <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-sm font-medium text-emerald-400">
+              {studentWords.length} words
+            </span>
+          </div>
+
+          <div>
+            <h1 className="text-2xl font-bold text-[var(--foreground)]">
+              {selectedStudent.display_name || selectedStudent.email}&apos;s Progress
+            </h1>
+            <p className="mt-1 text-sm text-[var(--foreground-secondary)]">
+              View all words and their learning progress
+            </p>
+          </div>
+
+          {/* Search */}
+          <div className="relative">
+            <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--foreground-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              value={wordSearchQuery}
+              onChange={(e) => setWordSearchQuery(e.target.value)}
+              placeholder="Search words, translations, or lessons..."
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] py-2.5 pl-10 pr-4 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
+            />
+          </div>
+
+          {/* Summary Stats */}
+          <div className="grid grid-cols-4 gap-3">
+            <div className="rounded-lg border border-[var(--border)] bg-[var(--card-bg)] p-3 text-center">
+              <p className="text-xl font-bold text-[var(--foreground)]">{studentWords.length}</p>
+              <p className="text-xs text-[var(--foreground-muted)]">Total Words</p>
+            </div>
+            <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 text-center">
+              <p className="text-xl font-bold text-emerald-400">
+                {studentWords.filter(w => getStudentMasteryLevel(w).level === "Mastered").length}
+              </p>
+              <p className="text-xs text-[var(--foreground-muted)]">Mastered</p>
+            </div>
+            <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 text-center">
+              <p className="text-xl font-bold text-amber-400">
+                {studentWords.filter(w => getStudentMasteryLevel(w).level === "Learning").length}
+              </p>
+              <p className="text-xs text-[var(--foreground-muted)]">Learning</p>
+            </div>
+            <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-3 text-center">
+              <p className="text-xl font-bold text-red-400">
+                {studentWords.filter(w => getStudentMasteryLevel(w).level === "Struggling").length}
+              </p>
+              <p className="text-xs text-[var(--foreground-muted)]">Struggling</p>
+            </div>
+          </div>
+
+          {/* Word List */}
+          {filteredStudentWords.length > 0 ? (
+            <div className="space-y-2">
+              {filteredStudentWords.map((word) => {
+                const mastery = getStudentMasteryLevel(word);
+                const isDue = new Date(word.due_at) <= new Date();
+                return (
+                  <button
+                    key={word.id}
+                    onClick={() => setSelectedWordDetail(word)}
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 text-left transition hover:border-emerald-500/50 hover:bg-emerald-500/5"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="font-semibold text-[var(--foreground)] truncate">{word.term}</p>
+                          {isDue && (
+                            <span className="shrink-0 rounded bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-medium text-emerald-400">
+                              DUE
+                            </span>
+                          )}
+                        </div>
+                        {word.translation && (
+                          <p className="mt-0.5 text-sm text-[var(--foreground-secondary)] truncate">{word.translation}</p>
+                        )}
+                        <p className="mt-1 text-xs text-[var(--foreground-muted)]">
+                          {word.lesson_title || "Lesson"} • {new Date(word.lesson_date).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${mastery.bg} ${mastery.color}`}>
+                          {mastery.level}
+                        </span>
+                        <span className="text-xs text-[var(--foreground-muted)]">
+                          {word.total_success}/{word.total_success + word.total_fail} correct
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-[var(--border)] text-[var(--foreground-muted)]">
+              {wordSearchQuery ? "No words match your search" : "No words yet for this student"}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Word Detail Modal (Teacher View) */}
+      {selectedWordDetail && (
+        <>
+          <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={() => setSelectedWordDetail(null)} />
+          <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-[var(--border)] bg-[var(--background)] p-6 shadow-2xl">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="text-xl font-bold text-[var(--foreground)]">{selectedWordDetail.term}</h3>
+                {selectedWordDetail.translation && (
+                  <p className="mt-1 text-lg text-emerald-500">{selectedWordDetail.translation}</p>
+                )}
+              </div>
+              <button
+                onClick={() => setSelectedWordDetail(null)}
+                className="rounded-lg p-1 text-[var(--foreground-muted)] transition hover:bg-[var(--background-tertiary)] hover:text-[var(--foreground)]"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {selectedWordDetail.note && (
+              <div className="mb-4 rounded-lg bg-[var(--background-tertiary)] p-3">
+                <p className="text-sm text-[var(--foreground-secondary)]">{selectedWordDetail.note}</p>
+              </div>
+            )}
+
+            <div className="mb-4 text-sm text-[var(--foreground-muted)]">
+              From: {selectedWordDetail.lesson_title || "Lesson"} • {new Date(selectedWordDetail.lesson_date).toLocaleDateString()}
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="rounded-lg border border-[var(--border)] bg-[var(--card-bg)] p-3 text-center">
+                <p className="text-2xl font-bold text-[var(--foreground)]">{selectedWordDetail.repetitions}</p>
+                <p className="text-xs text-[var(--foreground-muted)]">Reviews</p>
+              </div>
+              <div className="rounded-lg border border-[var(--border)] bg-[var(--card-bg)] p-3 text-center">
+                <p className="text-2xl font-bold text-emerald-400">
+                  {selectedWordDetail.total_success + selectedWordDetail.total_fail > 0 
+                    ? Math.round((selectedWordDetail.total_success / (selectedWordDetail.total_success + selectedWordDetail.total_fail)) * 100)
+                    : 0}%
+                </p>
+                <p className="text-xs text-[var(--foreground-muted)]">Success Rate</p>
+              </div>
+              <div className="rounded-lg border border-[var(--border)] bg-[var(--card-bg)] p-3 text-center">
+                <p className="text-2xl font-bold text-[var(--foreground)]">{selectedWordDetail.interval_days}d</p>
+                <p className="text-xs text-[var(--foreground-muted)]">Interval</p>
+              </div>
+              <div className="rounded-lg border border-[var(--border)] bg-[var(--card-bg)] p-3 text-center">
+                <p className="text-2xl font-bold text-[var(--foreground)]">{selectedWordDetail.ease.toFixed(1)}</p>
+                <p className="text-xs text-[var(--foreground-muted)]">Ease Factor</p>
+              </div>
+            </div>
+
+            {/* Next review */}
+            <div className="rounded-lg border border-[var(--border)] bg-[var(--card-bg)] p-3 text-center">
+              <p className="text-xs text-[var(--foreground-muted)] mb-1">Next Review</p>
+              <p className={`font-semibold ${new Date(selectedWordDetail.due_at) <= new Date() ? 'text-emerald-400' : 'text-[var(--foreground)]'}`}>
+                {new Date(selectedWordDetail.due_at) <= new Date() 
+                  ? "Due now!" 
+                  : new Date(selectedWordDetail.due_at).toLocaleDateString()}
+              </p>
+            </div>
+
+            <button
+              onClick={() => setSelectedWordDetail(null)}
+              className="mt-4 w-full rounded-lg bg-[var(--background-tertiary)] py-2.5 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--border)]"
+            >
+              Close
+            </button>
+          </div>
+        </>
       )}
     </div>
   );
