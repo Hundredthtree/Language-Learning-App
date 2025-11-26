@@ -6,7 +6,6 @@ import { supabase } from "@/lib/supabaseClient";
 import { nextReview, type Grade } from "@/lib/spacedRepetition";
 import type { Lesson, LessonWord, Profile, ReviewCard, Role } from "@/types/domain";
 import { Logo } from "@/components/Logo";
-import { LiquidEther } from "@/components/LiquidEther";
 import { LottieAnimation } from "@/components/LottieAnimation";
 
 type AuthMode = "sign-in" | "sign-up";
@@ -196,9 +195,7 @@ export default function Home() {
 
         {/* Auth */}
         {!session && (
-          <>
-            <LiquidEther />
-            <div className="relative z-10 flex min-h-[calc(100vh-10rem)] flex-col items-center justify-center">
+          <div className="flex min-h-[calc(100vh-10rem)] flex-col items-center justify-center">
               <div className="mb-8 text-center">
                 <h1 className="bg-gradient-to-r from-[var(--foreground)] via-[var(--foreground)] to-[var(--foreground-secondary)] bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl">
                   Учись с Ксенией
@@ -220,7 +217,6 @@ export default function Home() {
                 <AuthPanel mode={authMode} onModeChange={setAuthMode} onToast={setToast} />
               </div>
             </div>
-          </>
         )}
 
         {/* Loading */}
