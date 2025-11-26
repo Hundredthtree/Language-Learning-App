@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Learn Russian with Ksenia",
+  title: "Ksenia's Russian School",
   description:
-    "Master Russian with Ksenia - Track your mistakes and practice with spaced repetition.",
+    "Learn Russian with Ksenia - Track your mistakes and practice with spaced repetition.",
 };
 
 export default function RootLayout({

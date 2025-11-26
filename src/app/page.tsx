@@ -175,7 +175,7 @@ export default function Home() {
               <span className="text-lg font-bold text-white">К</span>
             </div>
             <span className="text-lg font-semibold tracking-tight text-[var(--foreground)]">
-              Ksenia Russian
+              Ksenia&apos;s Russian School
             </span>
           </div>
           <div className="flex items-center gap-3">
