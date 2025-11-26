@@ -41,7 +41,7 @@ function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <button className="theme-toggle flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card-bg)] transition hover:bg-[var(--background-tertiary)]">
+      <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card-bg)] transition hover:bg-[var(--background-tertiary)]">
         <div className="h-4 w-4" />
       </button>
     );
@@ -50,12 +50,16 @@ function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="theme-toggle flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card-bg)] transition hover:bg-[var(--background-tertiary)]"
+      className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card-bg)] transition hover:bg-[var(--background-tertiary)] overflow-hidden"
       aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
     >
-      {/* Moon icon (dark mode) */}
+      {/* Moon icon (visible in dark mode) */}
       <svg
-        className="moon-icon h-4 w-4 text-violet-400"
+        className={`absolute h-4 w-4 text-violet-400 transition-all duration-300 ${
+          theme === "dark" 
+            ? "rotate-0 scale-100 opacity-100" 
+            : "-rotate-90 scale-0 opacity-0"
+        }`}
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -67,22 +71,24 @@ function ThemeToggle() {
           d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
         />
       </svg>
-      {/* Sun icon (light mode) */}
-      <span className="sun-icon">
-        <svg
-          className="h-4 w-4 text-amber-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-          />
-        </svg>
-      </span>
+      {/* Sun icon (visible in light mode) */}
+      <svg
+        className={`absolute h-4 w-4 text-amber-500 transition-all duration-300 ${
+          theme === "light" 
+            ? "rotate-0 scale-100 opacity-100" 
+            : "rotate-90 scale-0 opacity-0"
+        }`}
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+        />
+      </svg>
     </button>
   );
 }
@@ -196,7 +202,7 @@ export default function Home() {
 
         {/* Auth */}
         {!session && (
-          <>
+          <div className="flex min-h-[calc(100vh-10rem)] flex-col items-center justify-center">
             <div className="mb-12 text-center">
               <h1 className="bg-gradient-to-r from-[var(--foreground)] via-[var(--foreground)] to-[var(--foreground-secondary)] bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl">
                 Master every mistake
@@ -207,7 +213,7 @@ export default function Home() {
               </p>
             </div>
             <AuthPanel mode={authMode} onModeChange={setAuthMode} onToast={setToast} />
-          </>
+          </div>
         )}
 
         {/* Loading */}
@@ -308,20 +314,31 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
   return (
     <div className="mx-auto w-full max-w-sm">
       <div className="rounded-2xl border border-[var(--border)] bg-[var(--card-bg)] p-6">
-        <div className="mb-6 flex rounded-lg bg-[var(--background-tertiary)] p-1">
+        {/* Auth mode tabs with sliding background */}
+        <div className="relative mb-6 flex rounded-lg bg-[var(--background-tertiary)] p-1">
+          {/* Sliding background indicator */}
+          <div
+            className="absolute left-1 top-1 bottom-1 w-[calc(50%-4px)] rounded-md bg-gradient-to-r from-violet-500 to-fuchsia-500 shadow-lg shadow-violet-500/25"
+            style={{
+              transform: mode === "sign-in" ? "translateX(0)" : "translateX(calc(100% + 4px))",
+              transition: "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+            }}
+          />
           <button
             onClick={() => onModeChange("sign-in")}
-            className={`flex-1 rounded-md py-2 text-sm font-medium transition ${
-              mode === "sign-in" ? "bg-violet-500 text-white shadow-sm" : "text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"
+            className={`relative z-10 flex-1 rounded-md py-2 text-sm font-medium ${
+              mode === "sign-in" ? "text-white" : "text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"
             }`}
+            style={{ transition: "color 200ms" }}
           >
             Sign in
           </button>
           <button
             onClick={() => onModeChange("sign-up")}
-            className={`flex-1 rounded-md py-2 text-sm font-medium transition ${
-              mode === "sign-up" ? "bg-violet-500 text-white shadow-sm" : "text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"
+            className={`relative z-10 flex-1 rounded-md py-2 text-sm font-medium ${
+              mode === "sign-up" ? "text-white" : "text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"
             }`}
+            style={{ transition: "color 200ms" }}
           >
             Create account
           </button>
@@ -408,7 +425,10 @@ type AvatarWidgetProps = {
 
 function AvatarWidget({ profile, onToast, onUpdateProfile }: AvatarWidgetProps) {
   const [showMenu, setShowMenu] = useState(false);
+  const [showNameModal, setShowNameModal] = useState(false);
+  const [newName, setNewName] = useState(profile.display_name || "");
   const [uploading, setUploading] = useState(false);
+  const [savingName, setSavingName] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAvatarClick = () => {
@@ -453,6 +473,30 @@ function AvatarWidget({ profile, onToast, onUpdateProfile }: AvatarWidgetProps) 
       onUpdateProfile({ ...profile, avatar_url: publicUrl });
     }
     setUploading(false);
+  };
+
+  const handleSaveName = async () => {
+    if (!supabase) return;
+    const trimmedName = newName.trim();
+    if (!trimmedName) {
+      onToast("Name cannot be empty");
+      return;
+    }
+    
+    setSavingName(true);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ display_name: trimmedName })
+      .eq('id', profile.id);
+
+    if (error) {
+      onToast(`Could not update name: ${error.message}`);
+    } else {
+      onToast('Name updated!');
+      onUpdateProfile({ ...profile, display_name: trimmedName });
+      setShowNameModal(false);
+    }
+    setSavingName(false);
   };
 
   return (
@@ -504,6 +548,15 @@ function AvatarWidget({ profile, onToast, onUpdateProfile }: AvatarWidgetProps) 
           <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
           <div className="absolute right-0 top-full z-20 mt-2 w-48 rounded-xl border border-[var(--border)] bg-[var(--toast-bg)] p-2 shadow-xl backdrop-blur-sm">
             <button
+              onClick={() => { setShowNameModal(true); setNewName(profile.display_name || ""); setShowMenu(false); }}
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-[var(--foreground-secondary)] transition hover:bg-[var(--background-tertiary)]"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+              Change name
+            </button>
+            <button
               onClick={() => { handleAvatarClick(); setShowMenu(false); }}
               className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-[var(--foreground-secondary)] transition hover:bg-[var(--background-tertiary)]"
             >
@@ -512,6 +565,39 @@ function AvatarWidget({ profile, onToast, onUpdateProfile }: AvatarWidgetProps) 
               </svg>
               Change avatar
             </button>
+          </div>
+        </>
+      )}
+
+      {/* Name Edit Modal */}
+      {showNameModal && (
+        <>
+          <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={() => setShowNameModal(false)} />
+          <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-[var(--border)] bg-[var(--background)] p-6 shadow-2xl">
+            <h3 className="mb-4 text-lg font-semibold text-[var(--foreground)]">Change your name</h3>
+            <input
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder="Enter your name"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
+              onKeyDown={(e) => e.key === "Enter" && handleSaveName()}
+              autoFocus
+            />
+            <div className="mt-4 flex gap-3 justify-end">
+              <button
+                onClick={() => setShowNameModal(false)}
+                className="rounded-lg border border-[var(--border)] bg-[var(--card-bg)] px-4 py-2 text-sm font-medium text-[var(--foreground-secondary)] transition hover:bg-[var(--background-tertiary)]"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveName}
+                disabled={savingName}
+                className="rounded-lg bg-gradient-to-r from-violet-500 to-fuchsia-500 px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+              >
+                {savingName ? "Saving..." : "Save"}
+              </button>
+            </div>
           </div>
         </>
       )}
