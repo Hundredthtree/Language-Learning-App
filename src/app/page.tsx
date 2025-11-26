@@ -208,9 +208,9 @@ export default function Home() {
                   with spaced repetition.
                 </p>
               </div>
-              <div className="flex items-center gap-8">
+              <div className="flex items-center gap-12">
                 <AuthPanel mode={authMode} onModeChange={setAuthMode} onToast={setToast} />
-                <div className="hidden lg:block w-80 h-80">
+                <div className="hidden lg:flex items-center justify-center" style={{ width: '32rem', height: '32rem' }}>
                   <LottieAnimation 
                     src="/animations/Teacher.lottie" 
                     loop={true}
