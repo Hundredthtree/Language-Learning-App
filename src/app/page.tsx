@@ -209,7 +209,6 @@ export default function Home() {
                 </p>
               </div>
               <div className="flex items-center gap-12">
-                <AuthPanel mode={authMode} onModeChange={setAuthMode} onToast={setToast} />
                 <div className="hidden lg:flex items-center justify-center" style={{ width: '32rem', height: '32rem' }}>
                   <LottieAnimation 
                     src="/animations/Teacher.lottie" 
@@ -218,6 +217,7 @@ export default function Home() {
                     className="w-full h-full"
                   />
                 </div>
+                <AuthPanel mode={authMode} onModeChange={setAuthMode} onToast={setToast} />
               </div>
             </div>
           </>
