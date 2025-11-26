@@ -191,11 +191,11 @@ button {
 
 /* Dotted grid background */
 .dotted-grid-bg {
-  background-image: radial-gradient(circle, var(--dot-color, rgba(255, 255, 255, 0.15)) 1px, transparent 1px);
+  background-image: radial-gradient(circle, var(--dot-color, rgba(255, 255, 255, 0.22)) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
 [data-theme="light"] .dotted-grid-bg {
-  --dot-color: rgba(0, 0, 0, 0.1);
+  --dot-color: rgba(0, 0, 0, 0.15);
 }
 
