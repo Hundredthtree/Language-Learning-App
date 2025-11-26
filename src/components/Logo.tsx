@@ -22,22 +22,16 @@ export function Logo({ className = "", size = "md", withText = false }: LogoProp
   };
 
   const icon = (
-    <div className={`flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 shadow-rose-500/20 ${sizeMap[size]} ${className}`}>
+    <div className={`flex shrink-0 items-center justify-center rounded-xl overflow-hidden shadow-lg shadow-slate-500/10 ${sizeMap[size]} ${className}`}>
       <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="text-white w-3/5 h-3/5"
+        viewBox="0 0 3 2"
+        className="w-full h-full"
+        preserveAspectRatio="none"
       >
-        {/* Vertical line */}
-        <path d="M6 4v16" />
-        {/* Top arm */}
-        <path d="M18 4l-12 9" />
-        {/* Bottom leg */}
-        <path d="M6 13l12 7" />
+        {/* Russian Flag - White, Blue, Red horizontal stripes */}
+        <rect x="0" y="0" width="3" height="0.667" fill="#FFFFFF" />
+        <rect x="0" y="0.667" width="3" height="0.667" fill="#0039A6" />
+        <rect x="0" y="1.333" width="3" height="0.667" fill="#D52B1E" />
       </svg>
     </div>
   );
@@ -55,4 +49,3 @@ export function Logo({ className = "", size = "md", withText = false }: LogoProp
 
   return icon;
 }
-

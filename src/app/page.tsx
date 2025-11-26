@@ -1649,11 +1649,11 @@ function StudentDashboard({ profile, onToast, onUpdateProfile }: StudentDashboar
             {/* Word Library Card */}
             <button
               onClick={handleOpenWordLibrary}
-              className="rounded-xl border border-rose-500/30 bg-gradient-to-r from-rose-500/10 to-pink-600/10 p-5 text-left transition hover:border-rose-500/50"
+              className="rounded-xl border border-sky-500/30 bg-gradient-to-r from-sky-500/10 to-blue-600/10 p-5 text-left transition hover:border-sky-500/50"
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-500/20">
-                  <svg className="h-5 w-5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sky-500/20">
+                  <svg className="h-5 w-5 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                   </svg>
                 </div>
@@ -1663,10 +1663,10 @@ function StudentDashboard({ profile, onToast, onUpdateProfile }: StudentDashboar
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="rounded-full bg-rose-500/20 px-3 py-1 text-sm font-medium text-rose-400">
+                <span className="rounded-full bg-sky-500/20 px-3 py-1 text-sm font-medium text-sky-500">
                   {lessons.reduce((acc, l) => acc + (l.word_count ?? 0), 0)} words
                 </span>
-                <span className="text-rose-400">→</span>
+                <span className="text-sky-500">→</span>
               </div>
             </button>
           </div>
@@ -1822,7 +1822,7 @@ function StudentDashboard({ profile, onToast, onUpdateProfile }: StudentDashboar
             >
               ← Back to overview
             </button>
-            <span className="rounded-full bg-rose-500/20 px-3 py-1 text-sm font-medium text-rose-400">
+            <span className="rounded-full bg-sky-500/20 px-3 py-1 text-sm font-medium text-sky-500">
               {allWords.length} words
             </span>
           </div>
@@ -1841,7 +1841,7 @@ function StudentDashboard({ profile, onToast, onUpdateProfile }: StudentDashboar
               value={wordSearchQuery}
               onChange={(e) => setWordSearchQuery(e.target.value)}
               placeholder="Search words, translations, or lessons..."
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] py-2.5 pl-10 pr-4 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-rose-500"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] py-2.5 pl-10 pr-4 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-sky-500"
             />
           </div>
 
@@ -1855,7 +1855,7 @@ function StudentDashboard({ profile, onToast, onUpdateProfile }: StudentDashboar
                   <button
                     key={word.id}
                     onClick={() => setSelectedWord(word)}
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 text-left transition hover:border-rose-500/50 hover:bg-rose-500/5"
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 text-left transition hover:border-sky-500/50 hover:bg-sky-500/5"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
