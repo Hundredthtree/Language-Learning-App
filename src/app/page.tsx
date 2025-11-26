@@ -309,7 +309,7 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
 
   return (
     <div className="mx-auto w-full max-w-sm">
-      <div className="rounded-2xl border border-white/20 bg-white/70 p-6 shadow-xl shadow-black/5 backdrop-blur-xl">
+      <div className="rounded-2xl border border-white/20 bg-white/70 p-6 shadow-2xl shadow-black/20 backdrop-blur-xl drop-shadow-lg">
         {/* Auth mode tabs with sliding background */}
         <div className="relative mb-6 flex rounded-lg bg-black/5 p-1">
           {/* Sliding background indicator */}
