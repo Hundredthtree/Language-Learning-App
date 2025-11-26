@@ -167,7 +167,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+    <div className={`min-h-screen bg-[var(--background)] text-[var(--foreground)] ${!session ? 'dotted-grid-bg' : ''}`}>
       {/* Mobile-only message */}
       <div className="flex lg:hidden min-h-screen flex-col items-center justify-center px-8 text-center">
         <Logo size="xl" className="mb-6" />

@@ -189,3 +189,13 @@ button {
 .animation-delay-500 { animation-delay: 500ms; }
 .animation-delay-600 { animation-delay: 600ms; }
 
+/* Dotted grid background */
+.dotted-grid-bg {
+  background-image: radial-gradient(circle, var(--dot-color, rgba(255, 255, 255, 0.15)) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+[data-theme="light"] .dotted-grid-bg {
+  --dot-color: rgba(0, 0, 0, 0.1);
+}
+
