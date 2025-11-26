@@ -321,6 +321,31 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
   const [displayName, setDisplayName] = useState("");
   const [role, setRole] = useState<Role>("student");
   const [busy, setBusy] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+
+  // Reset the "email sent" state when switching modes
+  useEffect(() => {
+    setResetSent(false);
+  }, [mode]);
+
+  const handleForgotPassword = async () => {
+    if (!supabase) return;
+    if (!email) {
+      onToast("Please enter your email address first");
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}`,
+    });
+    if (error) {
+      onToast(error.message);
+    } else {
+      setResetSent(true);
+      onToast("Password reset email sent! Check your inbox.");
+    }
+    setBusy(false);
+  };
 
   const handleSubmit = async () => {
     if (!supabase) return;
@@ -406,7 +431,19 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium" style={{ color: 'var(--glass-label)' }}>Password</label>
+            <div className="mb-1.5 flex items-center justify-between">
+              <label className="text-sm font-medium" style={{ color: 'var(--glass-label)' }}>Password</label>
+              {mode === "sign-in" && (
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  disabled={busy || resetSent}
+                  className="text-xs font-medium text-rose-400 hover:text-rose-300 transition disabled:opacity-50"
+                >
+                  {resetSent ? "Email sent!" : "Forgot password?"}
+                </button>
+              )}
+            </div>
             <input
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -416,7 +453,7 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
               placeholder="••••••••"
             />
             <p className="mt-1.5 text-xs" style={{ color: 'var(--glass-label)', opacity: 0.7 }}>
-              Use at least 8 characters with a mix of numbers and symbols for stronger protection.
+              Use at least 8 characters with a mix of numbers and symbols.
             </p>
           </div>
           {mode === "sign-up" && (
@@ -482,10 +519,44 @@ type AvatarWidgetProps = {
 function AvatarWidget({ profile, onToast, onUpdateProfile }: AvatarWidgetProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [newName, setNewName] = useState(profile.display_name || "");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [uploading, setUploading] = useState(false);
   const [savingName, setSavingName] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSavePassword = async () => {
+    if (!supabase) return;
+    
+    if (newPassword.length < 8) {
+      onToast("Password must be at least 8 characters");
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      onToast("Passwords do not match");
+      return;
+    }
+    
+    setSavingPassword(true);
+    
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+    
+    if (error) {
+      onToast(error.message);
+    } else {
+      onToast("Password updated successfully!");
+      setShowPasswordModal(false);
+      setNewPassword("");
+      setConfirmPassword("");
+    }
+    setSavingPassword(false);
+  };
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
@@ -621,6 +692,15 @@ function AvatarWidget({ profile, onToast, onUpdateProfile }: AvatarWidgetProps) 
               </svg>
               Change avatar
             </button>
+            <button
+              onClick={() => { setShowPasswordModal(true); setShowMenu(false); }}
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-[var(--foreground-secondary)] transition hover:bg-[var(--background-tertiary)]"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+              </svg>
+              Change password
+            </button>
           </div>
         </>
       )}
@@ -652,6 +732,58 @@ function AvatarWidget({ profile, onToast, onUpdateProfile }: AvatarWidgetProps) 
                 className="rounded-lg bg-gradient-to-r from-rose-500 to-pink-600 px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
               >
                 {savingName ? "Saving..." : "Save"}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Password Change Modal */}
+      {showPasswordModal && (
+        <>
+          <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={() => { setShowPasswordModal(false); setNewPassword(""); setConfirmPassword(""); }} />
+          <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-[var(--border)] bg-[var(--background)] p-6 shadow-2xl">
+            <h3 className="mb-4 text-lg font-semibold text-[var(--foreground)]">Change your password</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-[var(--foreground-secondary)]">New password</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Enter new password"
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-rose-500"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-[var(--foreground-secondary)]">Confirm password</label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm new password"
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-rose-500"
+                  onKeyDown={(e) => e.key === "Enter" && handleSavePassword()}
+                />
+              </div>
+              <p className="text-xs text-[var(--foreground-muted)]">
+                Use at least 8 characters with a mix of numbers and symbols for stronger protection.
+              </p>
+            </div>
+            <div className="mt-4 flex gap-3 justify-end">
+              <button
+                onClick={() => { setShowPasswordModal(false); setNewPassword(""); setConfirmPassword(""); }}
+                className="rounded-lg border border-[var(--border)] bg-[var(--card-bg)] px-4 py-2 text-sm font-medium text-[var(--foreground-secondary)] transition hover:bg-[var(--background-tertiary)]"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSavePassword}
+                disabled={savingPassword}
+                className="rounded-lg bg-gradient-to-r from-rose-500 to-pink-600 px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+              >
+                {savingPassword ? "Saving..." : "Update password"}
               </button>
             </div>
           </div>
