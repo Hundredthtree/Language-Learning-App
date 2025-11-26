@@ -167,6 +167,25 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+      {/* Mobile-only message */}
+      <div className="flex lg:hidden min-h-screen flex-col items-center justify-center px-8 text-center">
+        <Logo size="xl" className="mb-6" />
+        <h1 className="text-2xl font-bold text-[var(--foreground)] mb-3">
+          Desktop Only
+        </h1>
+        <p className="text-[var(--foreground-secondary)] max-w-sm">
+          This app is not optimized for mobile devices. Please open on a desktop or laptop for the best experience.
+        </p>
+        <div className="mt-8 flex items-center gap-2 text-[var(--foreground-muted)] text-sm">
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          <span>Recommended: 1024px or wider</span>
+        </div>
+      </div>
+
+      {/* Desktop content */}
+      <div className="hidden lg:block">
       {/* Navigation */}
       <nav className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--nav-bg)] backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
@@ -195,20 +214,10 @@ export default function Home() {
 
         {/* Auth */}
         {!session && (
-          <div className="flex min-h-[calc(100vh-10rem)] flex-col items-center justify-center">
-              {/* Mobile text - shown only on smaller screens */}
-              <div className="mb-8 text-left lg:hidden">
-                <h1 className="bg-gradient-to-r from-[var(--foreground)] via-[var(--foreground)] to-[var(--foreground-secondary)] bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl">
-                  Учись с Ксенией
-                </h1>
-                <p className="mt-4 max-w-xl text-lg text-[var(--foreground-secondary)]">
-                  Learn Russian the smart way. Track your mistakes and master them 
-                  with spaced repetition.
-                </p>
-              </div>
+          <div className="flex min-h-[calc(100vh-10rem)] items-center justify-center">
               <div className="flex items-center gap-12">
-                {/* Desktop: Text + Animation column */}
-                <div className="hidden lg:flex flex-col items-start" style={{ width: '32rem' }}>
+                {/* Text + Animation column */}
+                <div className="flex flex-col items-start" style={{ width: '32rem' }}>
                   <div className="mb-4 text-left">
                     <h1 className="bg-gradient-to-r from-[var(--foreground)] via-[var(--foreground)] to-[var(--foreground-secondary)] bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl">
                       Учись с Ксенией
@@ -284,6 +293,7 @@ export default function Home() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
