@@ -321,6 +321,22 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
   return (
     <div className="mx-auto w-full max-w-sm">
       <div className="rounded-2xl border p-6 shadow-2xl shadow-black/20 backdrop-blur-xl drop-shadow-lg" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}>
+        {/* Header */}
+        <div className="mb-6 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium tracking-wider uppercase mb-3" style={{ backgroundColor: 'var(--glass-tab-bg)', color: 'var(--glass-label)' }}>
+            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            Secure Access
+          </div>
+          <h2 className="text-xl font-bold" style={{ color: 'var(--glass-text)' }}>
+            {mode === "sign-in" ? "Welcome back" : "Create account"}
+          </h2>
+          <p className="mt-1 text-sm" style={{ color: 'var(--glass-label)' }}>
+            {mode === "sign-in" ? "Sign in to your account to continue" : "Join Ksenia's Russian School"}
+          </p>
+        </div>
+
         {/* Auth mode tabs with sliding background */}
         <div className="relative mb-6 flex rounded-lg p-1" style={{ backgroundColor: 'var(--glass-tab-bg)' }}>
           {/* Sliding background indicator */}
