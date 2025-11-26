@@ -20,7 +20,7 @@ export default async function Image() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(135deg, #0a0a0f 0%, #1a1025 50%, #0a0a0f 100%)",
+          background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #f8fafc 100%)",
           position: "relative",
           overflow: "hidden",
         }}
@@ -34,7 +34,7 @@ export default async function Image() {
             width: "600px",
             height: "600px",
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(244, 63, 94, 0.15) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(244, 63, 94, 0.12) 0%, transparent 70%)",
           }}
         />
         <div
@@ -45,7 +45,7 @@ export default async function Image() {
             width: "800px",
             height: "800px",
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%)",
           }}
         />
 
@@ -54,7 +54,7 @@ export default async function Image() {
           style={{
             position: "absolute",
             inset: 0,
-            backgroundImage: "radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px)",
+            backgroundImage: "radial-gradient(circle, rgba(0, 0, 0, 0.08) 1px, transparent 1px)",
             backgroundSize: "32px 32px",
           }}
         />
@@ -78,7 +78,7 @@ export default async function Image() {
               height: "80px",
               borderRadius: "16px",
               overflow: "hidden",
-              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.15)",
               flexDirection: "column",
             }}
           >
@@ -100,7 +100,7 @@ export default async function Image() {
               style={{
                 fontSize: "72px",
                 fontWeight: 700,
-                color: "white",
+                color: "#0f172a",
                 margin: 0,
                 letterSpacing: "-0.02em",
                 textAlign: "center",
@@ -133,7 +133,7 @@ export default async function Image() {
             <p
               style={{
                 fontSize: "32px",
-                color: "#94a3b8",
+                color: "#475569",
                 margin: 0,
                 textAlign: "center",
               }}
@@ -167,12 +167,12 @@ export default async function Image() {
                 gap: "8px",
                 padding: "12px 24px",
                 borderRadius: "999px",
-                background: "rgba(244, 63, 94, 0.15)",
-                border: "1px solid rgba(244, 63, 94, 0.3)",
+                background: "rgba(244, 63, 94, 0.1)",
+                border: "1px solid rgba(244, 63, 94, 0.25)",
               }}
             >
               <span style={{ fontSize: "20px" }}>📚</span>
-              <span style={{ color: "#f43f5e", fontSize: "18px", fontWeight: 500 }}>
+              <span style={{ color: "#e11d48", fontSize: "18px", fontWeight: 500 }}>
                 Track Mistakes
               </span>
             </div>
@@ -183,12 +183,12 @@ export default async function Image() {
                 gap: "8px",
                 padding: "12px 24px",
                 borderRadius: "999px",
-                background: "rgba(16, 185, 129, 0.15)",
-                border: "1px solid rgba(16, 185, 129, 0.3)",
+                background: "rgba(16, 185, 129, 0.1)",
+                border: "1px solid rgba(16, 185, 129, 0.25)",
               }}
             >
               <span style={{ fontSize: "20px" }}>🧠</span>
-              <span style={{ color: "#10b981", fontSize: "18px", fontWeight: 500 }}>
+              <span style={{ color: "#059669", fontSize: "18px", fontWeight: 500 }}>
                 Master with Practice
               </span>
             </div>
