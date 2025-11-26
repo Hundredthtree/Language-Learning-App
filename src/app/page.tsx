@@ -196,23 +196,36 @@ export default function Home() {
         {/* Auth */}
         {!session && (
           <div className="flex min-h-[calc(100vh-10rem)] flex-col items-center justify-center">
-              <div className="mb-8 text-center">
+              {/* Mobile text - shown only on smaller screens */}
+              <div className="mb-8 text-left lg:hidden">
                 <h1 className="bg-gradient-to-r from-[var(--foreground)] via-[var(--foreground)] to-[var(--foreground-secondary)] bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl">
                   Учись с Ксенией
                 </h1>
-                <p className="mx-auto mt-4 max-w-xl text-lg text-[var(--foreground-secondary)]">
+                <p className="mt-4 max-w-xl text-lg text-[var(--foreground-secondary)]">
                   Learn Russian the smart way. Track your mistakes and master them 
                   with spaced repetition.
                 </p>
               </div>
               <div className="flex items-center gap-12">
-                <div className="hidden lg:flex items-center justify-center" style={{ width: '32rem', height: '32rem' }}>
-                  <LottieAnimation 
-                    src="/animations/Teacher.lottie" 
-                    loop={true}
-                    autoplay={true}
-                    className="w-full h-full"
-                  />
+                {/* Desktop: Text + Animation column */}
+                <div className="hidden lg:flex flex-col items-start" style={{ width: '32rem' }}>
+                  <div className="mb-4 text-left">
+                    <h1 className="bg-gradient-to-r from-[var(--foreground)] via-[var(--foreground)] to-[var(--foreground-secondary)] bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl">
+                      Учись с Ксенией
+                    </h1>
+                    <p className="mt-4 max-w-xl text-lg text-[var(--foreground-secondary)]">
+                      Learn Russian the smart way. Track your mistakes and master them 
+                      with spaced repetition.
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-center" style={{ width: '32rem', height: '32rem' }}>
+                    <LottieAnimation 
+                      src="/animations/Teacher.lottie" 
+                      loop={true}
+                      autoplay={true}
+                      className="w-full h-full"
+                    />
+                  </div>
                 </div>
                 <AuthPanel mode={authMode} onModeChange={setAuthMode} onToast={setToast} />
               </div>
