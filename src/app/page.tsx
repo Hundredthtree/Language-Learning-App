@@ -1411,6 +1411,8 @@ function StudentDashboard({ profile, onToast, onUpdateProfile }: StudentDashboar
   const [allWords, setAllWords] = useState<WordWithStats[]>([]);
   const [selectedWord, setSelectedWord] = useState<WordWithStats | null>(null);
   const [wordSearchQuery, setWordSearchQuery] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const currentCard = cards[0];
 
@@ -1588,6 +1590,36 @@ function StudentDashboard({ profile, onToast, onUpdateProfile }: StudentDashboar
     setCards([]);
     setWordSearchQuery("");
     loadTotalDue();
+  };
+
+  // Delete a word
+  const handleDeleteWord = async () => {
+    if (!supabase || !selectedWord) return;
+    setDeleting(true);
+    
+    // First delete the review card, then the lesson word
+    const { error: cardError } = await supabase
+      .from("review_cards")
+      .delete()
+      .eq("lesson_word_id", selectedWord.id)
+      .eq("student_id", profile.id);
+    
+    if (cardError) {
+      onToast(`Could not delete: ${cardError.message}`);
+      setDeleting(false);
+      return;
+    }
+
+    // Note: We only delete the review_card for this student, not the lesson_word itself
+    // because the lesson_word belongs to the teacher's lesson
+    
+    // Update local state
+    setAllWords(prev => prev.filter(w => w.id !== selectedWord.id));
+    setSelectedWord(null);
+    setShowDeleteConfirm(false);
+    setDeleting(false);
+    onToast("Word removed from your library");
+    loadLessons(); // Refresh lesson word counts
   };
 
   // Filter words by search query
@@ -1961,12 +1993,56 @@ function StudentDashboard({ profile, onToast, onUpdateProfile }: StudentDashboar
               </p>
             </div>
 
-            <button
-              onClick={() => setSelectedWord(null)}
-              className="mt-4 w-full rounded-lg bg-[var(--background-tertiary)] py-2.5 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--border)]"
-            >
-              Close
-            </button>
+            <div className="mt-4 flex gap-2">
+              <button
+                onClick={() => setSelectedWord(null)}
+                className="flex-1 rounded-lg bg-[var(--background-tertiary)] py-2.5 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--border)]"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-500 transition hover:bg-red-500/20"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && selectedWord && (
+        <>
+          <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm" onClick={() => setShowDeleteConfirm(false)} />
+          <div className="fixed left-1/2 top-1/2 z-[70] w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-[var(--border)] bg-[var(--background)] p-6 shadow-2xl">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10 mx-auto">
+              <svg className="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h3 className="mb-2 text-center text-lg font-bold text-[var(--foreground)]">Delete Word?</h3>
+            <p className="mb-6 text-center text-sm text-[var(--foreground-secondary)]">
+              Are you sure you want to remove <span className="font-semibold text-[var(--foreground)]">&quot;{selectedWord.term}&quot;</span> from your library? This will reset all your progress for this word.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deleting}
+                className="flex-1 rounded-lg bg-[var(--background-tertiary)] py-2.5 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--border)] disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteWord}
+                disabled={deleting}
+                className="flex-1 rounded-lg bg-red-500 py-2.5 text-sm font-medium text-white transition hover:bg-red-600 disabled:opacity-50"
+              >
+                {deleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
           </div>
         </>
       )}
