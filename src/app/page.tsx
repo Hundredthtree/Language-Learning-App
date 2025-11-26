@@ -7,6 +7,7 @@ import { nextReview, type Grade } from "@/lib/spacedRepetition";
 import type { Lesson, LessonWord, Profile, ReviewCard, Role } from "@/types/domain";
 import { Logo } from "@/components/Logo";
 import { LiquidEther } from "@/components/LiquidEther";
+import { LottieAnimation } from "@/components/LottieAnimation";
 
 type AuthMode = "sign-in" | "sign-up";
 type Theme = "light" | "dark";
@@ -198,7 +199,7 @@ export default function Home() {
           <>
             <LiquidEther />
             <div className="relative z-10 flex min-h-[calc(100vh-10rem)] flex-col items-center justify-center">
-              <div className="mb-12 text-center">
+              <div className="mb-8 text-center">
                 <h1 className="bg-gradient-to-r from-[var(--foreground)] via-[var(--foreground)] to-[var(--foreground-secondary)] bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl">
                   Учись с Ксенией
                 </h1>
@@ -207,7 +208,17 @@ export default function Home() {
                   with spaced repetition.
                 </p>
               </div>
-              <AuthPanel mode={authMode} onModeChange={setAuthMode} onToast={setToast} />
+              <div className="flex items-center gap-8">
+                <AuthPanel mode={authMode} onModeChange={setAuthMode} onToast={setToast} />
+                <div className="hidden lg:block w-80 h-80">
+                  <LottieAnimation 
+                    src="/animations/Teacher.lottie" 
+                    loop={true}
+                    autoplay={true}
+                    className="w-full h-full"
+                  />
+                </div>
+              </div>
             </div>
           </>
         )}
