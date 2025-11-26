@@ -15,7 +15,7 @@ type Theme = "light" | "dark";
 // ============================================
 
 function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<Theme>("light");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -25,11 +25,9 @@ function ThemeToggle() {
       setTheme(stored);
       document.documentElement.setAttribute("data-theme", stored);
     } else {
-      // Check system preference
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const initial = prefersDark ? "dark" : "light";
-      setTheme(initial);
-      document.documentElement.setAttribute("data-theme", initial);
+      // Default to light mode
+      setTheme("light");
+      document.documentElement.setAttribute("data-theme", "light");
     }
   }, []);
 
