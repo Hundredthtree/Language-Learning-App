@@ -7,6 +7,85 @@ import { nextReview, type Grade } from "@/lib/spacedRepetition";
 import type { Lesson, LessonWord, Profile, ReviewCard, Role } from "@/types/domain";
 
 type AuthMode = "sign-in" | "sign-up";
+type Theme = "light" | "dark";
+
+// ============================================
+// THEME TOGGLE
+// ============================================
+
+function ThemeToggle() {
+  const [theme, setTheme] = useState<Theme>("dark");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const stored = localStorage.getItem("theme") as Theme | null;
+    if (stored) {
+      setTheme(stored);
+      document.documentElement.setAttribute("data-theme", stored);
+    } else {
+      // Check system preference
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const initial = prefersDark ? "dark" : "light";
+      setTheme(initial);
+      document.documentElement.setAttribute("data-theme", initial);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    localStorage.setItem("theme", next);
+    document.documentElement.setAttribute("data-theme", next);
+  };
+
+  if (!mounted) {
+    return (
+      <button className="theme-toggle flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card-bg)] transition hover:bg-[var(--background-tertiary)]">
+        <div className="h-4 w-4" />
+      </button>
+    );
+  }
+
+  return (
+    <button
+      onClick={toggleTheme}
+      className="theme-toggle flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card-bg)] transition hover:bg-[var(--background-tertiary)]"
+      aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+    >
+      {/* Moon icon (dark mode) */}
+      <svg
+        className="moon-icon h-4 w-4 text-violet-400"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+        />
+      </svg>
+      {/* Sun icon (light mode) */}
+      <span className="sun-icon">
+        <svg
+          className="h-4 w-4 text-amber-500"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+          />
+        </svg>
+      </span>
+    </button>
+  );
+}
 
 export default function Home() {
   const [authMode, setAuthMode] = useState<AuthMode>("sign-in");
@@ -81,33 +160,36 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-slate-100">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 border-b border-white/5 bg-[#0a0a0f]/80 backdrop-blur-xl">
+      <nav className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--nav-bg)] backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500">
               <span className="text-lg font-bold text-white">F</span>
             </div>
-            <span className="text-lg font-semibold tracking-tight text-white">
+            <span className="text-lg font-semibold tracking-tight text-[var(--foreground)]">
               Fluency Loop
             </span>
           </div>
-          {session && (
-            <button
-              onClick={handleSignOut}
-              className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-medium text-slate-300 transition hover:bg-white/10"
-            >
-              Sign out
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            {session && (
+              <button
+                onClick={handleSignOut}
+                className="rounded-lg border border-[var(--border)] bg-[var(--card-bg)] px-3 py-1.5 text-sm font-medium text-[var(--foreground-secondary)] transition hover:bg-[var(--background-tertiary)]"
+              >
+                Sign out
+              </button>
+            )}
+          </div>
         </div>
       </nav>
 
       <main className="mx-auto max-w-5xl px-6 py-8">
         {/* Not configured */}
         {!supabase && (
-          <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-200">
+          <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-300">
             Supabase not configured. Set environment variables.
           </div>
         )}
@@ -116,10 +198,10 @@ export default function Home() {
         {!session && (
           <>
             <div className="mb-12 text-center">
-              <h1 className="bg-gradient-to-r from-white via-white to-slate-400 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl">
+              <h1 className="bg-gradient-to-r from-[var(--foreground)] via-[var(--foreground)] to-[var(--foreground-secondary)] bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl">
                 Master every mistake
               </h1>
-              <p className="mx-auto mt-4 max-w-xl text-lg text-slate-400">
+              <p className="mx-auto mt-4 max-w-xl text-lg text-[var(--foreground-secondary)]">
                 Teachers capture tricky words in real-time. Students practice with 
                 spaced repetition.
               </p>
@@ -139,8 +221,8 @@ export default function Home() {
         {session && !profile && !loading && (
           <div className="mx-auto max-w-md text-center py-12">
             <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-6">
-              <h2 className="text-lg font-semibold text-white mb-2">Profile Error</h2>
-              <p className="text-sm text-slate-400 mb-4">
+              <h2 className="text-lg font-semibold text-[var(--foreground)] mb-2">Profile Error</h2>
+              <p className="text-sm text-[var(--foreground-secondary)] mb-4">
                 Could not load your profile. This may be a temporary issue.
               </p>
               <div className="flex gap-3 justify-center">
@@ -152,7 +234,7 @@ export default function Home() {
                 </button>
                 <button
                   onClick={handleSignOut}
-                  className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-white/10"
+                  className="rounded-lg border border-[var(--border)] bg-[var(--card-bg)] px-4 py-2 text-sm font-medium text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)]"
                 >
                   Sign out
                 </button>
@@ -174,9 +256,9 @@ export default function Home() {
       {/* Toast */}
       {toast && (
         <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
-          <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-slate-900/95 px-4 py-3 text-sm text-slate-200 shadow-xl backdrop-blur-sm">
+          <div className="flex items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--toast-bg)] px-4 py-3 text-sm text-[var(--foreground)] shadow-xl backdrop-blur-sm">
             <span>{toast}</span>
-            <button onClick={() => setToast(null)} className="text-slate-500 hover:text-white">✕</button>
+            <button onClick={() => setToast(null)} className="text-[var(--foreground-muted)] hover:text-[var(--foreground)]">✕</button>
           </div>
         </div>
       )}
@@ -225,12 +307,12 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
 
   return (
     <div className="mx-auto w-full max-w-sm">
-      <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-        <div className="mb-6 flex rounded-lg bg-white/5 p-1">
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--card-bg)] p-6">
+        <div className="mb-6 flex rounded-lg bg-[var(--background-tertiary)] p-1">
           <button
             onClick={() => onModeChange("sign-in")}
             className={`flex-1 rounded-md py-2 text-sm font-medium transition ${
-              mode === "sign-in" ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-white"
+              mode === "sign-in" ? "bg-violet-500 text-white shadow-sm" : "text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"
             }`}
           >
             Sign in
@@ -238,7 +320,7 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
           <button
             onClick={() => onModeChange("sign-up")}
             className={`flex-1 rounded-md py-2 text-sm font-medium transition ${
-              mode === "sign-up" ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-white"
+              mode === "sign-up" ? "bg-violet-500 text-white shadow-sm" : "text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"
             }`}
           >
             Create account
@@ -247,21 +329,21 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
 
         <div className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-300">Email</label>
+            <label className="mb-1.5 block text-sm font-medium text-[var(--foreground-secondary)]">Email</label>
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-white placeholder-slate-500 outline-none focus:border-violet-500"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
               type="email"
               placeholder="you@example.com"
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-300">Password</label>
+            <label className="mb-1.5 block text-sm font-medium text-[var(--foreground-secondary)]">Password</label>
             <input
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-white placeholder-slate-500 outline-none focus:border-violet-500"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
               type="password"
               placeholder="••••••••"
             />
@@ -269,16 +351,16 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
           {mode === "sign-up" && (
             <>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-300">Your name</label>
+                <label className="mb-1.5 block text-sm font-medium text-[var(--foreground-secondary)]">Your name</label>
                 <input
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-white placeholder-slate-500 outline-none focus:border-violet-500"
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
                   placeholder="Alex"
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-300">I am a...</label>
+                <label className="mb-1.5 block text-sm font-medium text-[var(--foreground-secondary)]">I am a...</label>
                 <div className="grid grid-cols-2 gap-2">
                   {(["teacher", "student"] as Role[]).map((v) => (
                     <button
@@ -288,9 +370,9 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
                       className={`rounded-lg border px-3 py-2.5 text-sm font-medium transition ${
                         role === v
                           ? v === "teacher"
-                            ? "border-violet-500 bg-violet-500/10 text-violet-300"
-                            : "border-emerald-500 bg-emerald-500/10 text-emerald-300"
-                          : "border-white/10 text-slate-400 hover:text-white"
+                            ? "border-violet-500 bg-violet-500/10 text-violet-400"
+                            : "border-emerald-500 bg-emerald-500/10 text-emerald-400"
+                          : "border-[var(--border)] text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"
                       }`}
                     >
                       {v === "teacher" ? "👨‍🏫 Teacher" : "📚 Student"}
@@ -377,7 +459,7 @@ function AvatarWidget({ profile, onToast, onUpdateProfile }: AvatarWidgetProps) 
     <div className="relative">
       <button
         onClick={() => setShowMenu(!showMenu)}
-        className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2 transition hover:bg-white/[0.05]"
+        className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 transition hover:bg-[var(--background-tertiary)]"
       >
         {/* Avatar */}
         <div className="relative">
@@ -390,22 +472,22 @@ function AvatarWidget({ profile, onToast, onUpdateProfile }: AvatarWidgetProps) 
           ) : (
             <div className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold ${
               profile.role === 'teacher' 
-                ? 'bg-violet-500/20 text-violet-300' 
-                : 'bg-emerald-500/20 text-emerald-300'
+                ? 'bg-violet-500/20 text-violet-400' 
+                : 'bg-emerald-500/20 text-emerald-400'
             }`}>
               {(profile.display_name || profile.email || '?')[0].toUpperCase()}
             </div>
           )}
           {uploading && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
             </div>
           )}
         </div>
         
         {/* Info */}
         <div className="text-left hidden sm:block">
-          <p className="text-sm font-medium text-white">
+          <p className="text-sm font-medium text-[var(--foreground)]">
             {profile.display_name || profile.email}
           </p>
           <p className={`text-xs ${
@@ -420,10 +502,10 @@ function AvatarWidget({ profile, onToast, onUpdateProfile }: AvatarWidgetProps) 
       {showMenu && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
-          <div className="absolute right-0 top-full z-20 mt-2 w-48 rounded-xl border border-white/10 bg-slate-900 p-2 shadow-xl">
+          <div className="absolute right-0 top-full z-20 mt-2 w-48 rounded-xl border border-[var(--border)] bg-[var(--toast-bg)] p-2 shadow-xl backdrop-blur-sm">
             <button
               onClick={() => { handleAvatarClick(); setShowMenu(false); }}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-slate-300 transition hover:bg-white/5"
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-[var(--foreground-secondary)] transition hover:bg-[var(--background-tertiary)]"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -656,16 +738,16 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
     <div className="mb-6 flex items-center gap-2 text-sm">
       <button
         onClick={() => { setView("students"); setSelectedStudent(null); setSelectedLesson(null); }}
-        className={`transition ${view === "students" ? "text-white font-medium" : "text-slate-400 hover:text-white"}`}
+        className={`transition ${view === "students" ? "text-[var(--foreground)] font-medium" : "text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"}`}
       >
         Students
       </button>
       {selectedStudent && (
         <>
-          <span className="text-slate-600">/</span>
+          <span className="text-[var(--foreground-muted)]">/</span>
           <button
             onClick={() => { setView("lessons"); setSelectedLesson(null); }}
-            className={`transition ${view === "lessons" ? "text-white font-medium" : "text-slate-400 hover:text-white"}`}
+            className={`transition ${view === "lessons" ? "text-[var(--foreground)] font-medium" : "text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"}`}
           >
             {selectedStudent.display_name || selectedStudent.email}
           </button>
@@ -673,8 +755,8 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
       )}
       {selectedLesson && (
         <>
-          <span className="text-slate-600">/</span>
-          <span className="text-white font-medium">{selectedLesson.title || "Lesson"}</span>
+          <span className="text-[var(--foreground-muted)]">/</span>
+          <span className="text-[var(--foreground)] font-medium">{selectedLesson.title || "Lesson"}</span>
         </>
       )}
     </div>
@@ -689,22 +771,22 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
         <div className="space-y-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-white">Your Students</h1>
-              <p className="mt-1 text-sm text-slate-400">Invite students or select one to manage their lessons.</p>
+              <h1 className="text-2xl font-bold text-[var(--foreground)]">Your Students</h1>
+              <p className="mt-1 text-sm text-[var(--foreground-secondary)]">Invite students or select one to manage their lessons.</p>
             </div>
             <AvatarWidget profile={profile} onToast={onToast} onUpdateProfile={onUpdateProfile} />
           </div>
 
           {/* Invite Card */}
-          <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
-            <h2 className="mb-3 text-sm font-semibold text-white">Invite a Student</h2>
-            <p className="mb-4 text-xs text-slate-500">The student must have created an account first.</p>
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-5">
+            <h2 className="mb-3 text-sm font-semibold text-[var(--foreground)]">Invite a Student</h2>
+            <p className="mb-4 text-xs text-[var(--foreground-muted)]">The student must have created an account first.</p>
             <div className="flex gap-2">
               <input
                 value={linkEmail}
                 onChange={(e) => setLinkEmail(e.target.value)}
                 placeholder="student@email.com"
-                className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-white placeholder-slate-500 outline-none focus:border-violet-500"
+                className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
                 onKeyDown={(e) => e.key === "Enter" && handleLinkStudent()}
               />
               <button
@@ -724,21 +806,21 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
                 <button
                   key={student.id}
                   onClick={() => handleSelectStudent(student)}
-                  className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] p-4 text-left transition hover:border-violet-500/50 hover:bg-violet-500/5"
+                  className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 text-left transition hover:border-violet-500/50 hover:bg-violet-500/5"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300 font-medium">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 font-medium">
                     {(student.display_name || student.email || "?")[0].toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-white truncate">{student.display_name || "Unnamed"}</p>
-                    <p className="text-xs text-slate-500 truncate">{student.email}</p>
+                    <p className="font-medium text-[var(--foreground)] truncate">{student.display_name || "Unnamed"}</p>
+                    <p className="text-xs text-[var(--foreground-muted)] truncate">{student.email}</p>
                   </div>
-                  <span className="text-slate-600">→</span>
+                  <span className="text-[var(--foreground-muted)]">→</span>
                 </button>
               ))}
             </div>
           ) : (
-            <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-white/10 text-slate-500">
+            <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-[var(--border)] text-[var(--foreground-muted)]">
               No students yet. Invite one above!
             </div>
           )}
@@ -750,22 +832,22 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-white">
+              <h1 className="text-2xl font-bold text-[var(--foreground)]">
                 Lessons with {selectedStudent.display_name || selectedStudent.email}
               </h1>
-              <p className="mt-1 text-sm text-slate-400">Create a new lesson or continue an existing one.</p>
+              <p className="mt-1 text-sm text-[var(--foreground-secondary)]">Create a new lesson or continue an existing one.</p>
             </div>
           </div>
 
           {/* New Lesson */}
-          <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
-            <h2 className="mb-3 text-sm font-semibold text-white">Start New Lesson</h2>
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-5">
+            <h2 className="mb-3 text-sm font-semibold text-[var(--foreground)]">Start New Lesson</h2>
             <div className="flex gap-2">
               <input
                 value={lessonTitle}
                 onChange={(e) => setLessonTitle(e.target.value)}
                 placeholder="Lesson title (optional)"
-                className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-white placeholder-slate-500 outline-none focus:border-violet-500"
+                className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
                 onKeyDown={(e) => e.key === "Enter" && handleCreateLesson()}
               />
               <button
@@ -785,20 +867,20 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
                 <button
                   key={lesson.id}
                   onClick={() => handleSelectLesson(lesson)}
-                  className="w-full flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.02] p-4 text-left transition hover:border-violet-500/50 hover:bg-violet-500/5"
+                  className="w-full flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 text-left transition hover:border-violet-500/50 hover:bg-violet-500/5"
                 >
                   <div>
-                    <p className="font-medium text-white">{lesson.title || "Untitled Lesson"}</p>
-                    <p className="text-xs text-slate-500">
+                    <p className="font-medium text-[var(--foreground)]">{lesson.title || "Untitled Lesson"}</p>
+                    <p className="text-xs text-[var(--foreground-muted)]">
                       {new Date(lesson.started_at).toLocaleDateString()} • {lesson.word_count ?? 0} words
                     </p>
                   </div>
-                  <span className="text-slate-600">→</span>
+                  <span className="text-[var(--foreground-muted)]">→</span>
                 </button>
               ))}
             </div>
           ) : (
-            <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-white/10 text-slate-500">
+            <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-[var(--border)] text-[var(--foreground-muted)]">
               No lessons yet. Start one above!
             </div>
           )}
@@ -809,34 +891,34 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
       {view === "lesson-detail" && selectedLesson && selectedStudent && (
         <div className="space-y-6">
           <div>
-            <h1 className="text-2xl font-bold text-white">{selectedLesson.title || "Lesson"}</h1>
-            <p className="mt-1 text-sm text-slate-400">
+            <h1 className="text-2xl font-bold text-[var(--foreground)]">{selectedLesson.title || "Lesson"}</h1>
+            <p className="mt-1 text-sm text-[var(--foreground-secondary)]">
               With {selectedStudent.display_name || selectedStudent.email} • {new Date(selectedLesson.started_at).toLocaleDateString()}
             </p>
           </div>
 
           {/* Add Word Form */}
           <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-5">
-            <h2 className="mb-4 text-sm font-semibold text-white">Add Mistake</h2>
+            <h2 className="mb-4 text-sm font-semibold text-[var(--foreground)]">Add Mistake</h2>
             <div className="space-y-3">
               <input
                 value={wordForm.term}
                 onChange={(e) => setWordForm((p) => ({ ...p, term: e.target.value }))}
                 placeholder="Word or phrase they got wrong"
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-white placeholder-slate-500 outline-none focus:border-violet-500"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
               />
               <input
                 value={wordForm.translation}
                 onChange={(e) => setWordForm((p) => ({ ...p, translation: e.target.value }))}
                 placeholder="Correct meaning / translation"
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-white placeholder-slate-500 outline-none focus:border-violet-500"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
               />
               <textarea
                 value={wordForm.note}
                 onChange={(e) => setWordForm((p) => ({ ...p, note: e.target.value }))}
                 placeholder="Notes or explanation (optional)"
                 rows={2}
-                className="w-full resize-none rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-white placeholder-slate-500 outline-none focus:border-violet-500"
+                className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
               />
               <button
                 onClick={handleAddWord}
@@ -850,7 +932,7 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
 
           {/* Words in this lesson */}
           <div>
-            <h2 className="mb-3 text-sm font-semibold text-white">
+            <h2 className="mb-3 text-sm font-semibold text-[var(--foreground)]">
               Words in this lesson ({lessonWords.length})
             </h2>
             {lessonWords.length > 0 ? (
@@ -858,20 +940,20 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
                 {lessonWords.map((word) => (
                   <div
                     key={word.id}
-                    className="rounded-lg border border-white/5 bg-white/[0.02] p-3"
+                    className="rounded-lg border border-[var(--border)] bg-[var(--card-bg)] p-3"
                   >
                     <div className="flex items-start justify-between">
                       <div>
-                        <p className="font-medium text-white">{word.term}</p>
-                        {word.translation && <p className="text-sm text-slate-400">{word.translation}</p>}
-                        {word.note && <p className="mt-1 text-xs text-slate-500">{word.note}</p>}
+                        <p className="font-medium text-[var(--foreground)]">{word.term}</p>
+                        {word.translation && <p className="text-sm text-[var(--foreground-secondary)]">{word.translation}</p>}
+                        {word.note && <p className="mt-1 text-xs text-[var(--foreground-muted)]">{word.note}</p>}
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-white/10 text-slate-500">
+              <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-[var(--border)] text-[var(--foreground-muted)]">
                 No words added yet.
               </div>
             )}
@@ -1026,8 +1108,8 @@ function StudentDashboard({ profile, onToast, onUpdateProfile }: StudentDashboar
         <div className="space-y-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-white">Your Study Dashboard</h1>
-              <p className="mt-1 text-sm text-slate-400">Practice your mistakes and track progress.</p>
+              <h1 className="text-2xl font-bold text-[var(--foreground)]">Your Study Dashboard</h1>
+              <p className="mt-1 text-sm text-[var(--foreground-secondary)]">Practice your mistakes and track progress.</p>
             </div>
             <AvatarWidget profile={profile} onToast={onToast} onUpdateProfile={onUpdateProfile} />
           </div>
@@ -1039,11 +1121,11 @@ function StudentDashboard({ profile, onToast, onUpdateProfile }: StudentDashboar
           >
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-white">Practice All Words</h2>
-                <p className="mt-1 text-sm text-slate-400">Review all your mistakes from every lesson</p>
+                <h2 className="text-lg font-semibold text-[var(--foreground)]">Practice All Words</h2>
+                <p className="mt-1 text-sm text-[var(--foreground-secondary)]">Review all your mistakes from every lesson</p>
               </div>
               <div className="flex items-center gap-3">
-                <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-sm font-medium text-emerald-300">
+                <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-sm font-medium text-emerald-400">
                   {totalDue} due
                 </span>
                 <span className="text-emerald-400">→</span>
@@ -1053,27 +1135,27 @@ function StudentDashboard({ profile, onToast, onUpdateProfile }: StudentDashboar
 
           {/* Lessons */}
           <div>
-            <h2 className="mb-3 text-sm font-semibold text-white">Your Lessons</h2>
+            <h2 className="mb-3 text-sm font-semibold text-[var(--foreground)]">Your Lessons</h2>
             {lessons.length > 0 ? (
               <div className="space-y-2">
                 {lessons.map((lesson) => (
                   <button
                     key={lesson.id}
                     onClick={() => handlePracticeLesson(lesson)}
-                    className="w-full flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.02] p-4 text-left transition hover:border-emerald-500/50 hover:bg-emerald-500/5"
+                    className="w-full flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 text-left transition hover:border-emerald-500/50 hover:bg-emerald-500/5"
                   >
                     <div>
-                      <p className="font-medium text-white">{lesson.title || "Untitled Lesson"}</p>
-                      <p className="text-xs text-slate-500">
+                      <p className="font-medium text-[var(--foreground)]">{lesson.title || "Untitled Lesson"}</p>
+                      <p className="text-xs text-[var(--foreground-muted)]">
                         {new Date(lesson.started_at).toLocaleDateString()} • {lesson.word_count ?? 0} words
                       </p>
                     </div>
-                    <span className="text-slate-600">Practice →</span>
+                    <span className="text-[var(--foreground-muted)]">Practice →</span>
                   </button>
                 ))}
               </div>
             ) : (
-              <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-white/10 text-slate-500">
+              <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-[var(--border)] text-[var(--foreground-muted)]">
                 No lessons yet. Ask your teacher to create one!
               </div>
             )}
@@ -1087,17 +1169,17 @@ function StudentDashboard({ profile, onToast, onUpdateProfile }: StudentDashboar
           <div className="flex items-center justify-between">
             <button
               onClick={handleBack}
-              className="flex items-center gap-2 text-sm text-slate-400 transition hover:text-white"
+              className="flex items-center gap-2 text-sm text-[var(--foreground-secondary)] transition hover:text-[var(--foreground)]"
             >
               ← Back to overview
             </button>
-            <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-sm font-medium text-emerald-300">
+            <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-sm font-medium text-emerald-400">
               {cards.length} remaining
             </span>
           </div>
 
           <div>
-            <h1 className="text-2xl font-bold text-white">
+            <h1 className="text-2xl font-bold text-[var(--foreground)]">
               {view === "practice-all" ? "Practice All Words" : `Practice: ${selectedLesson?.title || "Lesson"}`}
             </h1>
           </div>
@@ -1107,37 +1189,37 @@ function StudentDashboard({ profile, onToast, onUpdateProfile }: StudentDashboar
             <div className="space-y-4">
               <div
                 onClick={() => setShowAnswer(true)}
-                className="flex min-h-[280px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.03] to-white/[0.01] p-8 text-center transition hover:border-white/20"
+                className="flex min-h-[280px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[var(--background-secondary)] to-[var(--card-bg)] p-8 text-center transition hover:border-[var(--border-hover)]"
               >
-                <p className="mb-2 text-xs text-slate-500">
+                <p className="mb-2 text-xs text-[var(--foreground-muted)]">
                   {currentCard.lesson_word?.lesson?.title || "Lesson"}
                 </p>
-                <p className="text-3xl font-bold text-white">
+                <p className="text-3xl font-bold text-[var(--foreground)]">
                   {currentCard.lesson_word?.term}
                 </p>
                 
                 {showAnswer ? (
                   <>
                     {currentCard.lesson_word?.translation && (
-                      <p className="mt-6 text-xl text-emerald-300">
+                      <p className="mt-6 text-xl text-emerald-500">
                         {currentCard.lesson_word.translation}
                       </p>
                     )}
                     {currentCard.lesson_word?.note && (
-                      <p className="mt-3 text-sm text-slate-400">
+                      <p className="mt-3 text-sm text-[var(--foreground-secondary)]">
                         {currentCard.lesson_word.note}
                       </p>
                     )}
                   </>
                 ) : (
-                  <p className="mt-6 text-sm text-slate-500">
+                  <p className="mt-6 text-sm text-[var(--foreground-muted)]">
                     Tap to reveal answer
                   </p>
                 )}
               </div>
 
               {/* Stats */}
-              <div className="flex justify-center gap-4 text-xs text-slate-500">
+              <div className="flex justify-center gap-4 text-xs text-[var(--foreground-muted)]">
                 <span>Interval: {currentCard.interval_days ?? 0}d</span>
                 <span>•</span>
                 <span>Ease: {(currentCard.ease ?? 2.5).toFixed(1)}</span>
@@ -1151,14 +1233,14 @@ function StudentDashboard({ profile, onToast, onUpdateProfile }: StudentDashboar
                   <button
                     onClick={() => reviewCard("again")}
                     disabled={busy}
-                    className="rounded-xl border border-red-500/30 bg-red-500/10 py-4 text-sm font-medium text-red-300 transition hover:bg-red-500/20 disabled:opacity-50"
+                    className="rounded-xl border border-red-500/30 bg-red-500/10 py-4 text-sm font-medium text-red-400 transition hover:bg-red-500/20 disabled:opacity-50"
                   >
                     Again
                   </button>
                   <button
                     onClick={() => reviewCard("hard")}
                     disabled={busy}
-                    className="rounded-xl border border-amber-500/30 bg-amber-500/10 py-4 text-sm font-medium text-amber-300 transition hover:bg-amber-500/20 disabled:opacity-50"
+                    className="rounded-xl border border-amber-500/30 bg-amber-500/10 py-4 text-sm font-medium text-amber-400 transition hover:bg-amber-500/20 disabled:opacity-50"
                   >
                     Hard
                   </button>
@@ -1173,17 +1255,17 @@ function StudentDashboard({ profile, onToast, onUpdateProfile }: StudentDashboar
               )}
             </div>
           ) : (
-            <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 text-center">
+            <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--border)] text-center">
               <div className="mb-3 text-4xl">🎉</div>
-              <p className="font-medium text-white">All done!</p>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="font-medium text-[var(--foreground)]">All done!</p>
+              <p className="mt-1 text-sm text-[var(--foreground-muted)]">
                 {view === "practice-all" 
                   ? "You've reviewed all your cards. Great job!"
                   : "No more cards in this lesson."}
               </p>
               <button
                 onClick={handleBack}
-                className="mt-4 rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/20"
+                className="mt-4 rounded-lg bg-[var(--background-tertiary)] px-4 py-2 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--border)]"
               >
                 Back to overview
               </button>

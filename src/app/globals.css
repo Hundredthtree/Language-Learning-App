@@ -1,8 +1,40 @@
 @import "tailwindcss";
 
 :root {
+  /* Dark theme (default) */
   --background: #0a0a0f;
+  --background-secondary: rgba(255, 255, 255, 0.02);
+  --background-tertiary: rgba(255, 255, 255, 0.05);
   --foreground: #fafafa;
+  --foreground-secondary: #94a3b8;
+  --foreground-muted: #64748b;
+  --border: rgba(255, 255, 255, 0.1);
+  --border-hover: rgba(255, 255, 255, 0.2);
+  --nav-bg: rgba(10, 10, 15, 0.8);
+  --card-bg: rgba(255, 255, 255, 0.02);
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --toast-bg: rgba(15, 23, 42, 0.95);
+  --selection-bg: rgba(139, 92, 246, 0.3);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="light"] {
+  --background: #f8fafc;
+  --background-secondary: rgba(0, 0, 0, 0.02);
+  --background-tertiary: rgba(0, 0, 0, 0.05);
+  --foreground: #0f172a;
+  --foreground-secondary: #475569;
+  --foreground-muted: #94a3b8;
+  --border: rgba(0, 0, 0, 0.1);
+  --border-hover: rgba(0, 0, 0, 0.2);
+  --nav-bg: rgba(248, 250, 252, 0.8);
+  --card-bg: rgba(0, 0, 0, 0.02);
+  --input-bg: rgba(0, 0, 0, 0.05);
+  --toast-bg: rgba(255, 255, 255, 0.95);
+  --selection-bg: rgba(139, 92, 246, 0.2);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.25);
 }
 
 @theme inline {
@@ -13,14 +45,14 @@
 }
 
 body {
-  background: #0a0a0f;
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbar for dark theme */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -31,18 +63,18 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--scrollbar-thumb);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--scrollbar-thumb-hover);
 }
 
 /* Selection color */
 ::selection {
-  background: rgba(139, 92, 246, 0.3);
-  color: white;
+  background: var(--selection-bg);
+  color: var(--foreground);
 }
 
 /* Focus ring styles */
@@ -65,4 +97,44 @@ a {
 /* All buttons should show pointer cursor */
 button {
   cursor: pointer;
+}
+
+/* Theme toggle animation */
+.theme-toggle {
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-toggle svg {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.theme-toggle .sun-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-theme="light"] .theme-toggle .moon-icon {
+  transform: rotate(-90deg) scale(0);
+  opacity: 0;
+}
+
+[data-theme="light"] .theme-toggle .sun-icon {
+  transform: rotate(0deg) scale(1);
+  opacity: 1;
+}
+
+:root .theme-toggle .moon-icon,
+[data-theme="dark"] .theme-toggle .moon-icon {
+  transform: rotate(0deg) scale(1);
+  opacity: 1;
+}
+
+:root .theme-toggle .sun-icon,
+[data-theme="dark"] .theme-toggle .sun-icon {
+  transform: rotate(90deg) scale(0);
+  opacity: 0;
 }
