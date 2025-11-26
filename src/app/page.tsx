@@ -309,9 +309,9 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
 
   return (
     <div className="mx-auto w-full max-w-sm">
-      <div className="rounded-2xl border border-white/20 bg-white/70 p-6 shadow-2xl shadow-black/20 backdrop-blur-xl drop-shadow-lg">
+      <div className="rounded-2xl border p-6 shadow-2xl shadow-black/20 backdrop-blur-xl drop-shadow-lg" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}>
         {/* Auth mode tabs with sliding background */}
-        <div className="relative mb-6 flex rounded-lg bg-black/5 p-1">
+        <div className="relative mb-6 flex rounded-lg p-1" style={{ backgroundColor: 'var(--glass-tab-bg)' }}>
           {/* Sliding background indicator */}
           <div
             className="absolute left-1 top-1 bottom-1 w-[calc(50%-4px)] rounded-md bg-gradient-to-r from-rose-500 to-pink-600 shadow-lg shadow-rose-500/25"
@@ -342,21 +342,23 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
 
         <div className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700">Email</label>
+            <label className="mb-1.5 block text-sm font-medium" style={{ color: 'var(--glass-label)' }}>Email</label>
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-white/30 bg-white/50 px-3 py-2.5 text-gray-900 placeholder-gray-500 outline-none backdrop-blur-sm focus:border-rose-500 focus:bg-white/70"
+              className="w-full rounded-lg border px-3 py-2.5 outline-none backdrop-blur-sm focus:border-rose-500"
+              style={{ backgroundColor: 'var(--glass-input-bg)', borderColor: 'var(--glass-input-border)', color: 'var(--glass-text)' }}
               type="email"
               placeholder="you@example.com"
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700">Password</label>
+            <label className="mb-1.5 block text-sm font-medium" style={{ color: 'var(--glass-label)' }}>Password</label>
             <input
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-white/30 bg-white/50 px-3 py-2.5 text-gray-900 placeholder-gray-500 outline-none backdrop-blur-sm focus:border-rose-500 focus:bg-white/70"
+              className="w-full rounded-lg border px-3 py-2.5 outline-none backdrop-blur-sm focus:border-rose-500"
+              style={{ backgroundColor: 'var(--glass-input-bg)', borderColor: 'var(--glass-input-border)', color: 'var(--glass-text)' }}
               type="password"
               placeholder="••••••••"
             />
@@ -364,16 +366,17 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
           {mode === "sign-up" && (
             <>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-700">Your name</label>
+                <label className="mb-1.5 block text-sm font-medium" style={{ color: 'var(--glass-label)' }}>Your name</label>
                 <input
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full rounded-lg border border-white/30 bg-white/50 px-3 py-2.5 text-gray-900 placeholder-gray-500 outline-none backdrop-blur-sm focus:border-rose-500 focus:bg-white/70"
+                  className="w-full rounded-lg border px-3 py-2.5 outline-none backdrop-blur-sm focus:border-rose-500"
+                  style={{ backgroundColor: 'var(--glass-input-bg)', borderColor: 'var(--glass-input-border)', color: 'var(--glass-text)' }}
                   placeholder="Alex"
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-700">I am a...</label>
+                <label className="mb-1.5 block text-sm font-medium" style={{ color: 'var(--glass-label)' }}>I am a...</label>
                 <div className="grid grid-cols-2 gap-2">
                   {(["teacher", "student"] as Role[]).map((v) => (
                     <button
@@ -383,10 +386,11 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
                       className={`rounded-lg border px-3 py-2.5 text-sm font-medium transition backdrop-blur-sm ${
                         role === v
                           ? v === "teacher"
-                            ? "border-rose-500 bg-rose-500/20 text-rose-600"
-                            : "border-emerald-500 bg-emerald-500/20 text-emerald-600"
-                          : "border-white/30 bg-white/30 text-gray-600 hover:bg-white/50 hover:text-gray-900"
+                            ? "border-rose-500 bg-rose-500/30 text-rose-400"
+                            : "border-emerald-500 bg-emerald-500/30 text-emerald-400"
+                          : ""
                       }`}
+                      style={role !== v ? { backgroundColor: 'var(--glass-input-bg)', borderColor: 'var(--glass-input-border)', color: 'var(--glass-label)' } : {}}
                     >
                       {v === "teacher" ? "👨‍🏫 Teacher" : "📚 Student"}
                     </button>
