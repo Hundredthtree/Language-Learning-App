@@ -171,11 +171,11 @@ export default function Home() {
       <nav className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--nav-bg)] backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500">
-              <span className="text-lg font-bold text-white">F</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-pink-600">
+              <span className="text-lg font-bold text-white">К</span>
             </div>
             <span className="text-lg font-semibold tracking-tight text-[var(--foreground)]">
-              Fluency Loop
+              Ksenia Russian
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -205,11 +205,11 @@ export default function Home() {
           <div className="flex min-h-[calc(100vh-10rem)] flex-col items-center justify-center">
             <div className="mb-12 text-center">
               <h1 className="bg-gradient-to-r from-[var(--foreground)] via-[var(--foreground)] to-[var(--foreground-secondary)] bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl">
-                Master every mistake
+                Учись с Ксенией
               </h1>
               <p className="mx-auto mt-4 max-w-xl text-lg text-[var(--foreground-secondary)]">
-                Teachers capture tricky words in real-time. Students practice with 
-                spaced repetition.
+                Learn Russian the smart way. Track your mistakes and master them 
+                with spaced repetition.
               </p>
             </div>
             <AuthPanel mode={authMode} onModeChange={setAuthMode} onToast={setToast} />
