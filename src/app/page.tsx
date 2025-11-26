@@ -661,14 +661,14 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
     if (!supabase) return;
     const { data, error } = await supabase
       .from("teacher_students")
-      .select("student:student_id(id, display_name, email, role)")
+      .select("student:profiles!teacher_students_student_id_fkey(id, display_name, email, role, avatar_url)")
       .eq("teacher_id", profile.id)
       .order("created_at", { ascending: false });
     if (error) {
       onToast(`Could not load students: ${error.message}`);
     } else {
       type Row = { student: Profile | null };
-      const mapped = ((data as Row[]) ?? []).map((r) => r.student).filter(Boolean) as Profile[];
+      const mapped = ((data as unknown as Row[]) ?? []).map((r) => r.student).filter(Boolean) as Profile[];
       setStudents(mapped);
     }
   }, [onToast, profile.id]);
