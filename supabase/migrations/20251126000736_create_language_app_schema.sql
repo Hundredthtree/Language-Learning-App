@@ -1,44 +1,15 @@
-## Overview
+-- Migration: create_language_app_schema
+-- Version: 20251126000736
+-- Description: Initial schema for language learning app with teachers, students, lessons, and spaced repetition
 
-Next.js + Supabase app for Russian lessons:
-
-- Teachers sign in, pick a student, start a lesson, and log every tricky word/phrase live.
-- Each word creates a review card for the student with spaced-repetition fields.
-- Students see their lessons, browse mistakes, and practice with a swipe-like trainer (Again/Hard/Got it).
-
-## Quick start
-
-1) Install dependencies
-
-```bash
-npm install
-```
-
-2) Configure Supabase
-
-- Create a Supabase project.
-- Copy `.env.local.example` to `.env.local` and fill:
-  - `NEXT_PUBLIC_SUPABASE_URL` - Your project URL
-  - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` - For client-side code (safe to expose in browser)
-  - `SUPABASE_SECRET_KEY` - For server-side code only (API routes, Server Components)
-- Get your keys from Supabase Dashboard → Settings → API:
-  - "Publishable key" for client-side
-  - "Secret keys" → your secret key for server-side
-- Run the SQL below in Supabase SQL Editor to create tables/policies.
-
-3) Run the dev server
-
-```bash
-npm run dev
-```
-
-Visit http://localhost:3000. Sign up as a teacher or student. Teachers create lessons and add words; students review cards.
-
-## Database schema (SQL)
-
-```sql
+-- Enable UUID extension
 create extension if not exists "uuid-ossp";
 
+-- ============================================
+-- TABLES
+-- ============================================
+
+-- Create profiles table (extends auth.users)
 create table profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   email text unique,
@@ -47,6 +18,7 @@ create table profiles (
   created_at timestamptz default now()
 );
 
+-- Create teacher_students linking table
 create table teacher_students (
   teacher_id uuid references profiles(id) on delete cascade,
   student_id uuid references profiles(id) on delete cascade,
@@ -54,6 +26,7 @@ create table teacher_students (
   primary key (teacher_id, student_id)
 );
 
+-- Create lessons table
 create table lessons (
   id uuid primary key default uuid_generate_v4(),
   teacher_id uuid references profiles(id) on delete cascade,
@@ -62,6 +35,7 @@ create table lessons (
   started_at timestamptz default now()
 );
 
+-- Create lesson_words table
 create table lesson_words (
   id uuid primary key default uuid_generate_v4(),
   lesson_id uuid references lessons(id) on delete cascade,
@@ -71,6 +45,7 @@ create table lesson_words (
   created_at timestamptz default now()
 );
 
+-- Create review_cards table for spaced repetition
 create table review_cards (
   id uuid primary key default uuid_generate_v4(),
   lesson_word_id uuid references lesson_words(id) on delete cascade,
@@ -84,31 +59,45 @@ create table review_cards (
   created_at timestamptz default now()
 );
 
-create index on lessons(student_id);
-create index on lessons(teacher_id);
-create index on teacher_students(teacher_id);
-create index on teacher_students(student_id);
-create index on lesson_words(lesson_id);
-create index on review_cards(student_id);
-create index on review_cards(due_at);
+-- ============================================
+-- INDEXES
+-- ============================================
 
--- Row Level Security (recommended)
+create index idx_lessons_student_id on lessons(student_id);
+create index idx_lessons_teacher_id on lessons(teacher_id);
+create index idx_teacher_students_teacher_id on teacher_students(teacher_id);
+create index idx_teacher_students_student_id on teacher_students(student_id);
+create index idx_lesson_words_lesson_id on lesson_words(lesson_id);
+create index idx_review_cards_student_id on review_cards(student_id);
+create index idx_review_cards_due_at on review_cards(due_at);
+
+-- ============================================
+-- ROW LEVEL SECURITY (RLS)
+-- ============================================
+
+-- Enable RLS on all tables
 alter table profiles enable row level security;
+alter table teacher_students enable row level security;
+alter table lessons enable row level security;
+alter table lesson_words enable row level security;
+alter table review_cards enable row level security;
+
+-- Profiles policies: Users can only access their own profile
 create policy "User reads own profile" on profiles for select using (auth.uid() = id);
 create policy "User inserts own profile" on profiles for insert with check (auth.uid() = id);
 create policy "User updates own profile" on profiles for update using (auth.uid() = id);
 
-alter table teacher_students enable row level security;
+-- Teacher_students policies: Teachers manage their student links
 create policy "Teacher manages links" on teacher_students
   for insert with check (auth.uid() = teacher_id);
 create policy "Teacher reads links" on teacher_students
   for select using (auth.uid() = teacher_id);
 
-alter table lessons enable row level security;
+-- Lessons policies: Teachers create, both participants can read
 create policy "Teacher inserts lessons" on lessons for insert with check (auth.uid() = teacher_id);
 create policy "Participants read lessons" on lessons for select using (auth.uid() in (teacher_id, student_id));
 
-alter table lesson_words enable row level security;
+-- Lesson_words policies: Teachers create words, participants can read
 create policy "Teacher inserts words" on lesson_words for insert with check (
   exists (select 1 from lessons l where l.id = lesson_id and l.teacher_id = auth.uid())
 );
@@ -119,7 +108,7 @@ create policy "Lesson participants read words" on lesson_words for select using 
   )
 );
 
-alter table review_cards enable row level security;
+-- Review_cards policies: Students own their cards, teachers can create
 create policy "Student reads cards" on review_cards for select using (student_id = auth.uid());
 create policy "Student updates cards" on review_cards for update using (student_id = auth.uid());
 create policy "Teacher creates cards" on review_cards for insert with check (
@@ -129,21 +118,4 @@ create policy "Teacher creates cards" on review_cards for insert with check (
     where w.id = lesson_word_id and l.teacher_id = auth.uid()
   ) or student_id = auth.uid()
 );
-```
 
-Notes:
-- Teachers must link students by email before starting lessons. Linking expects the student to have already signed up with role = student.
-- When a teacher adds a word, a `review_cards` row is created for that word + student with default SRS values.
-
-## What’s implemented
-
-- Auth forms for email/password sign-in/sign-up with role assignment saved to `profiles`.
-- Teacher desk to link students, select one, start a lesson, and log lesson words in real time.
-- Student dashboard to browse lessons/words and a swipe-style trainer with a light SM2-inspired interval calculation (`src/lib/spacedRepetition.ts`).
-- Supabase client wrapper in `src/lib/supabaseClient.ts` and shared domain types in `src/types/domain.ts`.
-
-## Next steps / ideas
-
-- Allow magic-link auth and add passwordless UI.
-- Show progress analytics (due counts, streaks) and let teachers tag words with categories.
-- Add server-side Supabase client for SSR of initial data if desired.
