@@ -389,6 +389,9 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
               type="password"
               placeholder="••••••••"
             />
+            <p className="mt-1.5 text-xs" style={{ color: 'var(--glass-label)', opacity: 0.7 }}>
+              Use at least 8 characters with a mix of numbers and symbols for stronger protection.
+            </p>
           </div>
           {mode === "sign-up" && (
             <>
