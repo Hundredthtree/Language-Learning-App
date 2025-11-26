@@ -5,6 +5,7 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import { nextReview, type Grade } from "@/lib/spacedRepetition";
 import type { Lesson, LessonWord, Profile, ReviewCard, Role } from "@/types/domain";
+import { Logo } from "@/components/Logo";
 
 type AuthMode = "sign-in" | "sign-up";
 type Theme = "light" | "dark";
@@ -55,7 +56,7 @@ function ThemeToggle() {
     >
       {/* Moon icon (visible in dark mode) */}
       <svg
-        className={`absolute h-4 w-4 text-violet-400 transition-all duration-300 ${
+        className={`absolute h-4 w-4 text-rose-400 transition-all duration-300 ${
           theme === "dark" 
             ? "rotate-0 scale-100 opacity-100" 
             : "-rotate-90 scale-0 opacity-0"
@@ -170,14 +171,7 @@ export default function Home() {
       {/* Navigation */}
       <nav className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--nav-bg)] backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-pink-600">
-              <span className="text-lg font-bold text-white">К</span>
-            </div>
-            <span className="text-lg font-semibold tracking-tight text-[var(--foreground)]">
-              Ksenia&apos;s Russian School
-            </span>
-          </div>
+          <Logo withText />
           <div className="flex items-center gap-3">
             <ThemeToggle />
             {session && (
@@ -219,7 +213,7 @@ export default function Home() {
         {/* Loading */}
         {loading && session && (
           <div className="flex items-center justify-center py-20">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-rose-500 border-t-transparent" />
           </div>
         )}
 
@@ -234,7 +228,7 @@ export default function Home() {
               <div className="flex gap-3 justify-center">
                 <button
                   onClick={() => session?.user && loadProfile(session.user.id)}
-                  className="rounded-lg bg-violet-500 px-4 py-2 text-sm font-medium text-white hover:bg-violet-600"
+                  className="rounded-lg bg-rose-500 px-4 py-2 text-sm font-medium text-white hover:bg-violet-600"
                 >
                   Retry
                 </button>
@@ -286,7 +280,7 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [role, setRole] = useState<Role>("teacher");
+  const [role, setRole] = useState<Role>("student");
   const [busy, setBusy] = useState(false);
 
   const handleSubmit = async () => {
@@ -318,7 +312,7 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
         <div className="relative mb-6 flex rounded-lg bg-[var(--background-tertiary)] p-1">
           {/* Sliding background indicator */}
           <div
-            className="absolute left-1 top-1 bottom-1 w-[calc(50%-4px)] rounded-md bg-gradient-to-r from-violet-500 to-fuchsia-500 shadow-lg shadow-violet-500/25"
+            className="absolute left-1 top-1 bottom-1 w-[calc(50%-4px)] rounded-md bg-gradient-to-r from-rose-500 to-pink-600 shadow-lg shadow-rose-500/25"
             style={{
               transform: mode === "sign-in" ? "translateX(0)" : "translateX(calc(100% + 4px))",
               transition: "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
@@ -350,7 +344,7 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-rose-500"
               type="email"
               placeholder="you@example.com"
             />
@@ -360,7 +354,7 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
             <input
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-rose-500"
               type="password"
               placeholder="••••••••"
             />
@@ -372,7 +366,7 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
                 <input
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-rose-500"
                   placeholder="Alex"
                 />
               </div>
@@ -387,8 +381,8 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
                       className={`rounded-lg border px-3 py-2.5 text-sm font-medium transition ${
                         role === v
                           ? v === "teacher"
-                            ? "border-violet-500 bg-violet-500/10 text-violet-400"
-                            : "border-emerald-500 bg-emerald-500/10 text-emerald-400"
+                            ? "border-rose-500 bg-rose-500/10 text-rose-500"
+                            : "border-emerald-500 bg-emerald-500/10 text-emerald-500"
                           : "border-[var(--border)] text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"
                       }`}
                     >
@@ -404,7 +398,7 @@ function AuthPanel({ mode, onModeChange, onToast }: AuthPanelProps) {
         <button
           onClick={handleSubmit}
           disabled={busy}
-          className="mt-6 w-full rounded-lg bg-gradient-to-r from-violet-500 to-fuchsia-500 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-500/25 transition hover:shadow-violet-500/40 disabled:opacity-50"
+          className="mt-6 w-full rounded-lg bg-gradient-to-r from-rose-500 to-pink-600 py-2.5 text-sm font-semibold text-white shadow-lg shadow-rose-500/25 transition hover:shadow-rose-500/40 disabled:opacity-50"
         >
           {busy ? "Please wait..." : mode === "sign-in" ? "Sign in" : "Create account"}
         </button>
@@ -516,7 +510,7 @@ function AvatarWidget({ profile, onToast, onUpdateProfile }: AvatarWidgetProps) 
           ) : (
             <div className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold ${
               profile.role === 'teacher' 
-                ? 'bg-violet-500/20 text-violet-400' 
+                ? 'bg-rose-500/20 text-rose-400' 
                 : 'bg-emerald-500/20 text-emerald-400'
             }`}>
               {(profile.display_name || profile.email || '?')[0].toUpperCase()}
@@ -524,7 +518,7 @@ function AvatarWidget({ profile, onToast, onUpdateProfile }: AvatarWidgetProps) 
           )}
           {uploading && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-rose-500 border-t-transparent" />
             </div>
           )}
         </div>
@@ -535,7 +529,7 @@ function AvatarWidget({ profile, onToast, onUpdateProfile }: AvatarWidgetProps) 
             {profile.display_name || profile.email}
           </p>
           <p className={`text-xs ${
-            profile.role === 'teacher' ? 'text-violet-400' : 'text-emerald-400'
+            profile.role === 'teacher' ? 'text-rose-400' : 'text-emerald-400'
           }`}>
             {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
           </p>
@@ -579,7 +573,7 @@ function AvatarWidget({ profile, onToast, onUpdateProfile }: AvatarWidgetProps) 
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="Enter your name"
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-rose-500"
               onKeyDown={(e) => e.key === "Enter" && handleSaveName()}
               autoFocus
             />
@@ -593,7 +587,7 @@ function AvatarWidget({ profile, onToast, onUpdateProfile }: AvatarWidgetProps) 
               <button
                 onClick={handleSaveName}
                 disabled={savingName}
-                className="rounded-lg bg-gradient-to-r from-violet-500 to-fuchsia-500 px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+                className="rounded-lg bg-gradient-to-r from-rose-500 to-pink-600 px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
               >
                 {savingName ? "Saving..." : "Save"}
               </button>
@@ -974,13 +968,13 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
                 value={linkEmail}
                 onChange={(e) => setLinkEmail(e.target.value)}
                 placeholder="student@email.com"
-                className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
+                className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-rose-500"
                 onKeyDown={(e) => e.key === "Enter" && handleLinkStudent()}
               />
               <button
                 onClick={handleLinkStudent}
                 disabled={busy}
-                className="rounded-lg bg-violet-500 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-violet-600 disabled:opacity-50"
+                className="rounded-lg bg-rose-500 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-violet-600 disabled:opacity-50"
               >
                 Invite
               </button>
@@ -994,7 +988,7 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
                 <button
                   key={student.id}
                   onClick={() => handleSelectStudent(student)}
-                  className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 text-left transition hover:border-violet-500/50 hover:bg-violet-500/5"
+                  className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 text-left transition hover:border-rose-500/50 hover:bg-rose-500/5"
                 >
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 font-medium">
                     {(student.display_name || student.email || "?")[0].toUpperCase()}
@@ -1032,8 +1026,8 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
             {/* New Lesson Card */}
             <div className="rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-5">
               <div className="flex items-center gap-3 mb-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/20">
-                  <svg className="h-5 w-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-500/20">
+                  <svg className="h-5 w-5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
                 </div>
@@ -1047,13 +1041,13 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
                   value={lessonTitle}
                   onChange={(e) => setLessonTitle(e.target.value)}
                   placeholder="Lesson title (optional)"
-                  className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
+                  className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-rose-500"
                   onKeyDown={(e) => e.key === "Enter" && handleCreateLesson()}
                 />
                 <button
                   onClick={handleCreateLesson}
                   disabled={busy}
-                  className="rounded-lg bg-violet-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-violet-600 disabled:opacity-50"
+                  className="rounded-lg bg-rose-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-violet-600 disabled:opacity-50"
                 >
                   Start
                 </button>
@@ -1094,7 +1088,7 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
                   <button
                     key={lesson.id}
                     onClick={() => handleSelectLesson(lesson)}
-                    className="w-full flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 text-left transition hover:border-violet-500/50 hover:bg-violet-500/5"
+                    className="w-full flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 text-left transition hover:border-rose-500/50 hover:bg-rose-500/5"
                   >
                     <div>
                       <p className="font-medium text-[var(--foreground)]">{lesson.title || "Untitled Lesson"}</p>
@@ -1126,32 +1120,32 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
           </div>
 
           {/* Add Word Form */}
-          <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-5">
+          <div className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-5">
             <h2 className="mb-4 text-sm font-semibold text-[var(--foreground)]">Add Mistake</h2>
             <div className="space-y-3">
               <input
                 value={wordForm.term}
                 onChange={(e) => setWordForm((p) => ({ ...p, term: e.target.value }))}
                 placeholder="Word or phrase they got wrong"
-                className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-rose-500"
               />
               <input
                 value={wordForm.translation}
                 onChange={(e) => setWordForm((p) => ({ ...p, translation: e.target.value }))}
                 placeholder="Correct meaning / translation"
-                className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-rose-500"
               />
               <textarea
                 value={wordForm.note}
                 onChange={(e) => setWordForm((p) => ({ ...p, note: e.target.value }))}
                 placeholder="Notes or explanation (optional)"
                 rows={2}
-                className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
+                className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-rose-500"
               />
               <button
                 onClick={handleAddWord}
                 disabled={busy}
-                className="w-full rounded-lg bg-gradient-to-r from-violet-500 to-fuchsia-500 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-500/20 transition hover:shadow-violet-500/30 disabled:opacity-50"
+                className="w-full rounded-lg bg-gradient-to-r from-rose-500 to-pink-600 py-2.5 text-sm font-semibold text-white shadow-lg shadow-rose-500/20 transition hover:shadow-rose-500/30 disabled:opacity-50"
               >
                 Add to Lesson
               </button>
@@ -1222,7 +1216,7 @@ function TeacherDashboard({ profile, onToast, onUpdateProfile }: TeacherDashboar
               value={wordSearchQuery}
               onChange={(e) => setWordSearchQuery(e.target.value)}
               placeholder="Search words, translations, or lessons..."
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] py-2.5 pl-10 pr-4 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] py-2.5 pl-10 pr-4 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-rose-500"
             />
           </div>
 
@@ -1657,11 +1651,11 @@ function StudentDashboard({ profile, onToast, onUpdateProfile }: StudentDashboar
             {/* Word Library Card */}
             <button
               onClick={handleOpenWordLibrary}
-              className="rounded-xl border border-violet-500/30 bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 p-5 text-left transition hover:border-violet-500/50"
+              className="rounded-xl border border-rose-500/30 bg-gradient-to-r from-rose-500/10 to-pink-600/10 p-5 text-left transition hover:border-rose-500/50"
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/20">
-                  <svg className="h-5 w-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-500/20">
+                  <svg className="h-5 w-5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                   </svg>
                 </div>
@@ -1671,10 +1665,10 @@ function StudentDashboard({ profile, onToast, onUpdateProfile }: StudentDashboar
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="rounded-full bg-violet-500/20 px-3 py-1 text-sm font-medium text-violet-400">
+                <span className="rounded-full bg-rose-500/20 px-3 py-1 text-sm font-medium text-rose-400">
                   {lessons.reduce((acc, l) => acc + (l.word_count ?? 0), 0)} words
                 </span>
-                <span className="text-violet-400">→</span>
+                <span className="text-rose-400">→</span>
               </div>
             </button>
           </div>
@@ -1830,7 +1824,7 @@ function StudentDashboard({ profile, onToast, onUpdateProfile }: StudentDashboar
             >
               ← Back to overview
             </button>
-            <span className="rounded-full bg-violet-500/20 px-3 py-1 text-sm font-medium text-violet-400">
+            <span className="rounded-full bg-rose-500/20 px-3 py-1 text-sm font-medium text-rose-400">
               {allWords.length} words
             </span>
           </div>
@@ -1849,7 +1843,7 @@ function StudentDashboard({ profile, onToast, onUpdateProfile }: StudentDashboar
               value={wordSearchQuery}
               onChange={(e) => setWordSearchQuery(e.target.value)}
               placeholder="Search words, translations, or lessons..."
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] py-2.5 pl-10 pr-4 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-violet-500"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--input-bg)] py-2.5 pl-10 pr-4 text-[var(--foreground)] placeholder-[var(--foreground-muted)] outline-none focus:border-rose-500"
             />
           </div>
 
@@ -1863,7 +1857,7 @@ function StudentDashboard({ profile, onToast, onUpdateProfile }: StudentDashboar
                   <button
                     key={word.id}
                     onClick={() => setSelectedWord(word)}
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 text-left transition hover:border-violet-500/50 hover:bg-violet-500/5"
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 text-left transition hover:border-rose-500/50 hover:bg-rose-500/5"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
