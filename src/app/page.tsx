@@ -220,7 +220,7 @@ export default function Home() {
                 {/* Text + Animation column */}
                 <div className="flex flex-col items-start" style={{ width: '32rem' }}>
                   <div className="mb-4 text-left">
-                    <h1 className="text-4xl font-bold tracking-tight sm:text-5xl whitespace-nowrap">
+                    <h1 className="text-4xl font-bold tracking-tight sm:text-5xl whitespace-nowrap animate-fade-in-left">
                       <DecryptoText 
                         textA="Учись с Ксенией" 
                         textB="Learn with Ksenia"
@@ -229,12 +229,12 @@ export default function Home() {
                         className="bg-gradient-to-r from-[var(--foreground)] via-[var(--foreground)] to-[var(--foreground-secondary)]"
                       />
                     </h1>
-                    <p className="mt-4 max-w-xl text-lg text-[var(--foreground-secondary)]">
+                    <p className="mt-4 max-w-xl text-lg text-[var(--foreground-secondary)] animate-fade-in-left animation-delay-100">
                       Learn Russian the smart way. Track your mistakes and master them 
                       with spaced repetition.
                     </p>
                   </div>
-                  <div className="flex items-center justify-center overflow-hidden rounded-3xl" style={{ width: '32rem', height: '32rem', backgroundColor: 'var(--background)' }}>
+                  <div className="flex items-center justify-center overflow-hidden rounded-3xl animate-scale-in animation-delay-200" style={{ width: '32rem', height: '32rem', backgroundColor: 'var(--background)' }}>
                     <LottieAnimation 
                       src="/animations/Teacher.lottie" 
                       loop={true}
@@ -243,7 +243,9 @@ export default function Home() {
                     />
                   </div>
                 </div>
-                <AuthPanel mode={authMode} onModeChange={setAuthMode} onToast={setToast} />
+                <div className="animate-fade-in-right animation-delay-300">
+                  <AuthPanel mode={authMode} onModeChange={setAuthMode} onToast={setToast} />
+                </div>
               </div>
             </div>
         )}
