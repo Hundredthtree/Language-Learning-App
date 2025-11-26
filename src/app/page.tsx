@@ -7,6 +7,7 @@ import { nextReview, type Grade } from "@/lib/spacedRepetition";
 import type { Lesson, LessonWord, Profile, ReviewCard, Role } from "@/types/domain";
 import { Logo } from "@/components/Logo";
 import { LottieAnimation } from "@/components/LottieAnimation";
+import { DecryptoText } from "@/components/DecryptoText";
 
 type AuthMode = "sign-in" | "sign-up";
 type Theme = "light" | "dark";
@@ -219,8 +220,14 @@ export default function Home() {
                 {/* Text + Animation column */}
                 <div className="flex flex-col items-start" style={{ width: '32rem' }}>
                   <div className="mb-4 text-left">
-                    <h1 className="bg-gradient-to-r from-[var(--foreground)] via-[var(--foreground)] to-[var(--foreground-secondary)] bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl">
-                      Учись с Ксенией
+                    <h1 className="text-4xl font-bold tracking-tight sm:text-5xl whitespace-nowrap">
+                      <DecryptoText 
+                        textA="Учись с Ксенией" 
+                        textB="Learn with Ksenia"
+                        holdDuration={4000}
+                        scrambleDuration={1200}
+                        className="bg-gradient-to-r from-[var(--foreground)] via-[var(--foreground)] to-[var(--foreground-secondary)]"
+                      />
                     </h1>
                     <p className="mt-4 max-w-xl text-lg text-[var(--foreground-secondary)]">
                       Learn Russian the smart way. Track your mistakes and master them 
