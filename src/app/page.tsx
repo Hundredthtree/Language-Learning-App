@@ -234,12 +234,13 @@ export default function Home() {
                       with spaced repetition.
                     </p>
                   </div>
-                  <div className="flex items-center justify-center overflow-hidden rounded-3xl animate-scale-in animation-delay-200" style={{ width: '32rem', height: '32rem', backgroundColor: 'var(--background)' }}>
+                  <div className="flex items-center justify-center overflow-hidden rounded-3xl animate-scale-in animation-delay-200" style={{ width: '32rem', height: '32rem' }}>
                     <LottieAnimation 
                       src="/animations/Teacher.lottie" 
                       loop={true}
                       autoplay={true}
                       className="w-full h-full"
+                      style={{ background: 'transparent' }}
                     />
                   </div>
                 </div>

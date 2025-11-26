@@ -8,6 +8,7 @@ interface LottieAnimationProps {
   autoplay?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  backgroundColor?: string;
 }
 
 export function LottieAnimation({
@@ -16,6 +17,7 @@ export function LottieAnimation({
   autoplay = true,
   className = "",
   style,
+  backgroundColor = "transparent",
 }: LottieAnimationProps) {
   return (
     <DotLottieReact
@@ -24,6 +26,7 @@ export function LottieAnimation({
       autoplay={autoplay}
       className={className}
       style={style}
+      backgroundColor={backgroundColor}
     />
   );
 }
